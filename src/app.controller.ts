@@ -7,6 +7,6 @@ export class AppController {
 
   @Get()
   getHello(): string[] {
-    return ['asldfjk'];
+    return ['asldfjk', 'abcdefg'];
   }
 }
