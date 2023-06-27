@@ -11,8 +11,114 @@ datasource db {
 }
 
 model Todo {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   text      String
   completed Boolean
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  path      String
+  name      String
+  Product   Product[]
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime @default(now())
+
+  Category Category @relation(fields: [categoryId], references: [id])
+
+  categoryId Int
+
+  name String
+
+  price Decimal
+
+  path String
+
+  thumbImagePath String
+
+  fullImagePath String
+
+  isBestSeller Boolean @default(false)
+
+  reviews Review[]
+
+  discounts Discount[]
+
+  details ProductDetails[]
+
+  inventories Inventory[]
+
+  InvoiceDetails InvoiceDetails[]
+}
+
+model Invoice {
+  id             Int              @id @default(autoincrement())
+  createdAt      DateTime         @default(now())
+  invoiceDetails InvoiceDetails[]
+  appUserId      Int
+  AppUser        AppUser          @relation(fields: [appUserId], references: [id])
+}
+
+model InvoiceDetails {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  product         Product  @relation(fields: [productId], references: [id])
+  productId       Int
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id])
+  invoiceId       Int
+  ProductQuantity Int
+}
+
+model AppUser {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  userName  String
+  password  String
+  imagePath String
+  invoices  Invoice[]
+  reviews   Review[]
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  appUser   AppUser  @relation(fields: [appUserId], references: [id])
+  appUserId Int
+  rating    Decimal
+  body      String
+}
+
+model Discount {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  StartDate DateTime @default(now())
+  EndDate   DateTime @default(now())
+  value     Int
+}
+
+model ProductDetails {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  text      String
+}
+
+model Inventory {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  product       Product  @relation(fields: [productId], references: [id])
+  productId     Int
+  quantity      Int
+  currentAmount Int
 }
