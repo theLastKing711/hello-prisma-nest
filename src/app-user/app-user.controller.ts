@@ -25,14 +25,18 @@ export class AppUserController {
     });
   }
   @Get()
-  async findAll(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.AppUserWhereUniqueInput;
-    where?: Prisma.AppUserWhereInput;
-    orderBy?: Prisma.AppUserOrderByWithRelationInput;
-  }) {
-    return this.appUserService.findAll(params);
+  async findAll(
+    params:
+      | {
+          skip?: number;
+          take?: number;
+          cursor?: Prisma.AppUserWhereUniqueInput;
+          where?: Prisma.AppUserWhereInput;
+          orderBy?: Prisma.AppUserOrderByWithRelationInput;
+        }
+      | undefined,
+  ) {
+    return this.appUserService.findAll(params || {});
   }
 
   @Get(':id')
