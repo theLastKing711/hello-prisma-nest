@@ -10,6 +10,7 @@ import {
 import { AppUserService } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
+import { Prisma } from '@prisma/client';
 
 @Controller('app-user')
 export class AppUserController {
@@ -23,10 +24,15 @@ export class AppUserController {
       password: createAppUserDto.password,
     });
   }
-
   @Get()
-  async findAll() {
-    return this.appUserService.findAll({});
+  async findAll(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.AppUserWhereUniqueInput;
+    where?: Prisma.AppUserWhereInput;
+    orderBy?: Prisma.AppUserOrderByWithRelationInput;
+  }) {
+    return this.appUserService.findAll(params);
   }
 
   @Get(':id')
