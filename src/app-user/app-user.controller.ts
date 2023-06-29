@@ -6,15 +6,16 @@ import {
   Patch,
   Param,
   Delete,
-  HttpException,
-  HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { AppUserService } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
 import { Prisma } from '@prisma/client';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('app-user')
+@UseGuards(AuthGuard)
 export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
@@ -43,22 +44,8 @@ export class AppUserController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    try {
-      const appUser = await this.appUserService.findOne({ id: +id });
-      return appUser;
-    } catch (err) {
-      console.log('error status', err.status);
-      throw new HttpException(
-        'User with given id was not found',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    // if (!appUser) {
-    //   throw new HttpException(
-    //     'User with given id was not found',
-    //     HttpStatus.NOT_FOUND,
-    //   );
-    // }
+    const appUser = await this.appUserService.findOne({ id: +id });
+    return appUser;
   }
 
   @Patch(':id')

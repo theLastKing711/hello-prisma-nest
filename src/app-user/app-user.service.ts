@@ -1,17 +1,20 @@
 import { AppUser } from './entities/app-user.entity';
 import { PrismaService } from './../prisma.service';
 import { Prisma } from '@prisma/client';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UseGuards,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { SignInAppUserDto } from './dto/sign-in-user.dto';
-import { JwtService } from '@nestjs/jwt';
-import { NotFoundError } from 'rxjs';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Injectable()
 export class AppUserService {
   saltOrRounds = 10;
 
-  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+  constructor(private prisma: PrismaService) {}
   async create(data: Prisma.AppUserCreateInput) {
     const hash = await bcrypt.hash(data.password, this.saltOrRounds);
 
@@ -43,15 +46,29 @@ export class AppUserService {
   async findOne(
     appUserWhereUniqueInput: Prisma.AppUserWhereUniqueInput,
   ): Promise<AppUser | null> {
-    // try {
-    const userModel = await this.prisma.appUser.findFirst({
+    const userModel = await this.prisma.appUser.findUnique({
       where: appUserWhereUniqueInput,
     });
-    Promise.reject(new HttpException('User not found', HttpStatus.FORBIDDEN));
+
+    if (!userModel) {
+      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
+    }
+
     return userModel;
-    // } catch (err) {
-    //   throw new HttpException('User not found', HttpStatus.FORBIDDEN);
-    // }
+  }
+
+  async findOneByUserName(userName: string): Promise<AppUser | null> {
+    const userModel = await this.prisma.appUser.findFirst({
+      where: {
+        userName,
+      },
+    });
+
+    if (!userModel) {
+      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
+    }
+
+    return userModel;
   }
 
   async update(params: {
@@ -69,24 +86,5 @@ export class AppUserService {
     return this.prisma.appUser.delete({
       where,
     });
-  }
-
-  async signIn(appUserDto: SignInAppUserDto) {
-    const appUserModel = await this.findOne({});
-
-    const user = await this.prisma.appUser.findFirstOrThrow();
-
-    const isMatch = await bcrypt.compare(
-      appUserModel.password,
-      appUserModel.password,
-    );
-
-    if (!isMatch) {
-      throw new Error();
-    }
-
-    const payload = { sub: appUserModel.id, username: appUserModel.userName };
-
-    return { accessToken: this.jwtService.sign(payload) };
   }
 }
