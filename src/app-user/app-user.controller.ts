@@ -15,7 +15,7 @@ import { Prisma } from '@prisma/client';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('app-user')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
