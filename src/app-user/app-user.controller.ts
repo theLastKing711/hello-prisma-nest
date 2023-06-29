@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { AppUserService } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
@@ -41,7 +43,22 @@ export class AppUserController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.appUserService.findOne({ id: +id });
+    try {
+      const appUser = await this.appUserService.findOne({ id: +id });
+      return appUser;
+    } catch (err) {
+      console.log('error status', err.status);
+      throw new HttpException(
+        'User with given id was not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    // if (!appUser) {
+    //   throw new HttpException(
+    //     'User with given id was not found',
+    //     HttpStatus.NOT_FOUND,
+    //   );
+    // }
   }
 
   @Patch(':id')
