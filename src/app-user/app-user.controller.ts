@@ -11,11 +11,12 @@ import {
 import { AppUserService } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { Roles } from 'src/roles/decorators/roles.decorator';
 
 @Controller('app-user')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
@@ -25,9 +26,12 @@ export class AppUserController {
       imagePath: createAppUserDto.imagePath,
       userName: createAppUserDto.userName,
       password: createAppUserDto.password,
+      role: createAppUserDto.role || Role.Admin,
     });
   }
+
   @Get()
+  @Roles(Role.Admin)
   async findAll(
     params:
       | {
@@ -61,6 +65,7 @@ export class AppUserController {
         imagePath: updateAppUserDto.imagePath,
         userName: updateAppUserDto.userName,
         password: updateAppUserDto.password,
+        role: updateAppUserDto.role || 'Admin',
       },
     });
   }

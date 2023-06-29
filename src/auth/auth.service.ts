@@ -1,7 +1,6 @@
 import { SignInAppUserDto } from 'src/app-user/dto/sign-in-user.dto';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { AppUserService } from 'src/app-user/app-user.service';
 
@@ -9,7 +8,6 @@ import { AppUserService } from 'src/app-user/app-user.service';
 export class AuthService {
   constructor(
     private appUserService: AppUserService,
-    private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
 

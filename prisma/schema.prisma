@@ -81,7 +81,7 @@ model AppUser {
   userName  String
   password  String
   imagePath String
-  Roles     Role[]
+  role      Role      @default(Admin)
   invoices  Invoice[]
   reviews   Review[]
 }
