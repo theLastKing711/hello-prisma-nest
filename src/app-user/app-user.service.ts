@@ -1,14 +1,25 @@
 import { AppUser } from './entities/app-user.entity';
 import { PrismaService } from './../prisma.service';
 import { Prisma } from '@prisma/client';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { SignInAppUserDto } from './dto/sign-in-user.dto';
+import { JwtService } from '@nestjs/jwt';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class AppUserService {
-  constructor(private prisma: PrismaService) {}
+  saltOrRounds = 10;
+
+  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
   async create(data: Prisma.AppUserCreateInput) {
+    const hash = await bcrypt.hash(data.password, this.saltOrRounds);
+
     return this.prisma.appUser.create({
-      data,
+      data: {
+        ...data,
+        password: hash,
+      },
     });
   }
 
@@ -32,9 +43,15 @@ export class AppUserService {
   async findOne(
     appUserWhereUniqueInput: Prisma.AppUserWhereUniqueInput,
   ): Promise<AppUser | null> {
-    return this.prisma.appUser.findUnique({
+    // try {
+    const userModel = await this.prisma.appUser.findFirst({
       where: appUserWhereUniqueInput,
     });
+    Promise.reject(new HttpException('User not found', HttpStatus.FORBIDDEN));
+    return userModel;
+    // } catch (err) {
+    //   throw new HttpException('User not found', HttpStatus.FORBIDDEN);
+    // }
   }
 
   async update(params: {
@@ -52,5 +69,24 @@ export class AppUserService {
     return this.prisma.appUser.delete({
       where,
     });
+  }
+
+  async signIn(appUserDto: SignInAppUserDto) {
+    const appUserModel = await this.findOne({});
+
+    const user = await this.prisma.appUser.findFirstOrThrow();
+
+    const isMatch = await bcrypt.compare(
+      appUserModel.password,
+      appUserModel.password,
+    );
+
+    if (!isMatch) {
+      throw new Error();
+    }
+
+    const payload = { sub: appUserModel.id, username: appUserModel.userName };
+
+    return { accessToken: this.jwtService.sign(payload) };
   }
 }
