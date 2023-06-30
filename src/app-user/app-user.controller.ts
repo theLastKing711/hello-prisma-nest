@@ -9,6 +9,9 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  ParseFilePipe,
+  FileTypeValidator,
+  MaxFileSizeValidator,
 } from '@nestjs/common';
 import { AppUserService } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
@@ -26,10 +29,19 @@ export class AppUserController {
   @Post()
   @UseInterceptors(FileInterceptor('imagePath'))
   async create(
-    @UploadedFile() imagePath,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+        ],
+      }),
+    )
+    imagePath: Express.Multer.File,
     @Body() createAppUserDto: CreateAppUserDto,
   ) {
-    console.log('image path');
+    console.log('dto', createAppUserDto);
+    console.log('image path', imagePath);
     return this.appUserService.create({
       imagePath: createAppUserDto.imagePath,
       userName: createAppUserDto.userName,
