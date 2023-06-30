@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { AppUserService } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
@@ -14,14 +16,21 @@ import { UpdateAppUserDto } from './dto/update-app-user.dto';
 import { Prisma, Role } from '@prisma/client';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { Roles } from 'src/roles/decorators/roles.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('app-user')
 @UseGuards(AuthGuard)
 export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
-  @Post()
-  async create(@Body() createAppUserDto: CreateAppUserDto) {
+  @Post('signup')
+  @UseInterceptors(FileInterceptor('imagePath'))
+  async create(
+    @UploadedFile() imagePath,
+    @Body() createAppUserDto: CreateAppUserDto,
+  ) {
+    console.log('image path', imagePath);
+    // console.log('zolo', createAppUserDto);
     return this.appUserService.create({
       imagePath: createAppUserDto.imagePath,
       userName: createAppUserDto.userName,
@@ -43,6 +52,7 @@ export class AppUserController {
         }
       | undefined,
   ) {
+    console.log('zolo 2');
     return this.appUserService.findAll(params || {});
   }
 
