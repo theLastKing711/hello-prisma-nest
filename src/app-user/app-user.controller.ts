@@ -23,14 +23,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class AppUserController {
   constructor(private readonly appUserService: AppUserService) {}
 
-  @Post('signup')
+  @Post()
   @UseInterceptors(FileInterceptor('imagePath'))
   async create(
     @UploadedFile() imagePath,
     @Body() createAppUserDto: CreateAppUserDto,
   ) {
-    console.log('image path', imagePath);
-    // console.log('zolo', createAppUserDto);
+    console.log('image path');
     return this.appUserService.create({
       imagePath: createAppUserDto.imagePath,
       userName: createAppUserDto.userName,
