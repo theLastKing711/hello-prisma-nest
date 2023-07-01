@@ -16,10 +16,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AppUserService } from './app-user.service';
-import {
-  CreateAppUserDto,
-  CreateAppUserDtoWithCloudinaryPublicId,
-} from './dto/create-app-user.dto';
+import { CreateAppUserDto } from './dto/create-app-user.dto';
 import { UpdateAppUserDto } from './dto/update-app-user.dto';
 import { Prisma, Role } from '@prisma/client';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
@@ -56,7 +53,10 @@ export class AppUserController {
     );
 
     if (userModel) {
-      throw new HttpException('User was not found', HttpStatus.CONFLICT);
+      throw new HttpException(
+        'User username already exist',
+        HttpStatus.CONFLICT,
+      );
     }
 
     const cloudinaryFile = await this.cloudinaryService
@@ -222,7 +222,6 @@ export class AppUserController {
     @Param('id') id: string,
     @Body() userDto: Pick<CreateAppUserDto, 'userName'>,
   ) {
-    console.log('testing');
     return await this.appUserService.isUserNameDuplicated(
       +id,
       userDto.userName,

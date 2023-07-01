@@ -52,7 +52,10 @@ export class CategoryController {
     );
 
     if (categoryModel) {
-      throw new HttpException('User was not found', HttpStatus.CONFLICT);
+      throw new HttpException(
+        'Category name already Exist',
+        HttpStatus.CONFLICT,
+      );
     }
 
     const cloudinaryFile = await this.cloudinaryService
@@ -94,6 +97,11 @@ export class CategoryController {
     );
 
     return responseCategoryServiceDtos;
+  }
+
+  @Get('list')
+  async findList() {
+    return this.categoryService.findList();
   }
 
   @Get(':id')
@@ -209,7 +217,7 @@ export class CategoryController {
     return responseUserDto;
   }
 
-  @Get(':id/validate-userName-duplication')
+  @Get(':id/validate-name-duplication')
   async validateCategory(
     @Param('id') id: string,
     @Body() catgoryDto: Pick<CreateCategoryDto, 'name'>,

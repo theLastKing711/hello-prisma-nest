@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Category } from './entities/category.entity';
 import { PrismaService } from 'src/prisma.service';
+import { CategoryListDto } from './dto/category-list.dto';
 
 @Injectable()
 export class CategoryService {
@@ -95,5 +96,14 @@ export class CategoryService {
     }
 
     return false;
+  }
+
+  async findList(): Promise<CategoryListDto[]> {
+    return this.prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
   }
 }
