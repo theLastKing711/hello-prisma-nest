@@ -18,8 +18,6 @@ export class CloudinaryService {
   }
 
   async removeImage(imagePath: string) {
-    return v2.api.delete_resources([imagePath], (error, result) => {
-      console.log(result, error);
-    });
+    return v2.api.delete_resources([imagePath]);
   }
 }

@@ -22,7 +22,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import { Roles } from 'src/roles/decorators/roles.decorator';
 import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service';
-import { Category } from './entities/category.entity';
 import { transformCategoryToResponse } from './cateogry.utilities';
 
 @Controller('category')
@@ -222,7 +221,6 @@ export class CategoryController {
     @Param('id') id: string,
     @Body() catgoryDto: Pick<CreateCategoryDto, 'name'>,
   ) {
-    console.log('testing');
     return await this.categoryService.isCategoryNameDuplicated(
       +id,
       catgoryDto.name,
