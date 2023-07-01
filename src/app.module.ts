@@ -7,9 +7,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './roles/guard/roles.guard';
 import { AppUserService } from './app-user/app-user.service';
 import { PrismaService } from './prisma.service';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { ImageService } from './shared/services/image/image.service';
 
 @Module({
-  imports: [AppUserModule, AuthModule],
+  imports: [AppUserModule, AuthModule, CloudinaryModule],
   controllers: [AppController],
   providers: [
     AppUserService,
@@ -19,6 +21,7 @@ import { PrismaService } from './prisma.service';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    ImageService,
   ],
 })
 export class AppModule {}

@@ -76,14 +76,15 @@ model InvoiceDetails {
 }
 
 model AppUser {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  userName  String
-  password  String
-  imagePath String
-  role      Role      @default(Admin)
-  invoices  Invoice[]
-  reviews   Review[]
+  id                   Int       @id @default(autoincrement())
+  createdAt            DateTime  @default(now())
+  userName             String    @unique()
+  password             String
+  imagePath            String
+  cloudinary_public_id String
+  role                 Role      @default(Admin)
+  invoices             Invoice[]
+  reviews              Review[]
 }
 
 model Review {

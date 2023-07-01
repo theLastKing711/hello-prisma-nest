@@ -6,5 +6,6 @@ export class AppUser {
   userName: string;
   password: string;
   imagePath: string;
+  cloudinary_public_id: string;
   role: Role;
 }

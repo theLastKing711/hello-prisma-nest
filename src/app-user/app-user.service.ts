@@ -51,7 +51,7 @@ export class AppUserService {
     });
 
     if (!userModel) {
-      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
+      return null;
     }
 
     return userModel;
@@ -65,7 +65,7 @@ export class AppUserService {
     });
 
     if (!userModel) {
-      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
+      return null;
     }
 
     return userModel;
@@ -76,6 +76,7 @@ export class AppUserService {
     data: Prisma.AppUserUpdateInput;
   }): Promise<AppUser> {
     const { where, data } = params;
+
     return this.prisma.appUser.update({
       data,
       where,
@@ -86,5 +87,25 @@ export class AppUserService {
     return this.prisma.appUser.delete({
       where,
     });
+  }
+
+  async isUserNameDuplicated(
+    sentUserId: number,
+    sentUserName: string,
+  ): Promise<boolean> {
+    const userSearchedByUserName = await this.findOneByUserName(sentUserName);
+
+    if (!userSearchedByUserName) {
+      return false;
+    }
+
+    if (
+      userSearchedByUserName.userName === sentUserName &&
+      sentUserId !== userSearchedByUserName.id
+    ) {
+      return true;
+    }
+
+    return false;
   }
 }
