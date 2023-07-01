@@ -18,11 +18,12 @@ model Todo {
 }
 
 model Category {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  path      String
-  name      String
-  Product   Product[]
+  id                   Int       @id @default(autoincrement())
+  createdAt            DateTime  @default(now())
+  imagePath            String
+  cloudinary_public_id String
+  name                 String
+  Product              Product[]
 }
 
 model Product {
@@ -38,7 +39,8 @@ model Product {
 
   price Decimal
 
-  path String
+  imagePath            String
+  cloudinary_public_id String
 
   thumbImagePath String
 

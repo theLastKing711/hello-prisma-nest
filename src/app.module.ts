@@ -9,9 +9,10 @@ import { AppUserService } from './app-user/app-user.service';
 import { PrismaService } from './prisma.service';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ImageService } from './shared/services/image/image.service';
+import { CategoryModule } from './category/category.module';
 
 @Module({
-  imports: [AppUserModule, AuthModule, CloudinaryModule],
+  imports: [AppUserModule, AuthModule, CloudinaryModule, CategoryModule],
   controllers: [AppController],
   providers: [
     AppUserService,
