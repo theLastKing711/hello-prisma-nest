@@ -23,7 +23,7 @@ model Category {
   imagePath            String
   cloudinary_public_id String
   name                 String
-  Product              Product[]
+  products             Product[]
 }
 
 model Product {
@@ -31,7 +31,7 @@ model Product {
 
   createdAt DateTime @default(now())
 
-  Category Category @relation(fields: [categoryId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
 
   categoryId Int
 
@@ -39,12 +39,9 @@ model Product {
 
   price Decimal
 
-  imagePath            String
+  imagePath String
+
   cloudinary_public_id String
-
-  thumbImagePath String
-
-  fullImagePath String
 
   isBestSeller Boolean @default(false)
 
@@ -64,7 +61,7 @@ model Invoice {
   createdAt      DateTime         @default(now())
   invoiceDetails InvoiceDetails[]
   appUserId      Int
-  AppUser        AppUser          @relation(fields: [appUserId], references: [id])
+  appUser        AppUser          @relation(fields: [appUserId], references: [id])
 }
 
 model InvoiceDetails {

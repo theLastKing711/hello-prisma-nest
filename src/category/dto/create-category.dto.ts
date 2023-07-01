@@ -1,1 +1,5 @@
-export class CreateCategoryDto {}
+export class CreateCategoryDto {
+  name: string;
+  createdAt: Date;
+  file: string;
+}

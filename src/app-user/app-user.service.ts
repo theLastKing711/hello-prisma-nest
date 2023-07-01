@@ -1,12 +1,7 @@
 import { AppUser } from './entities/app-user.entity';
 import { PrismaService } from './../prisma.service';
 import { Prisma } from '@prisma/client';
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UseGuards,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -14,7 +9,7 @@ export class AppUserService {
   saltOrRounds = 10;
 
   constructor(private prisma: PrismaService) {}
-  async create(data: Exclude<Prisma.AppUserCreateInput, 'role'>) {
+  async create(data: Omit<Prisma.AppUserCreateInput, 'role'>) {
     const hash = await bcrypt.hash(data.password, this.saltOrRounds);
 
     return this.prisma.appUser.create({

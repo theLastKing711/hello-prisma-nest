@@ -34,7 +34,7 @@ import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 export class AppUserController {
   constructor(
     private readonly appUserService: AppUserService,
-    private readonly cloudlinaryService: CloudinaryService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @Post()
@@ -51,7 +51,15 @@ export class AppUserController {
     file: Express.Multer.File,
     @Body() createAppUserDto: CreateAppUserDto,
   ) {
-    const cloudinaryFile = await this.cloudlinaryService
+    const userModel = await this.appUserService.findOneByUserName(
+      createAppUserDto.userName,
+    );
+
+    if (userModel) {
+      throw new HttpException('User was not found', HttpStatus.CONFLICT);
+    }
+
+    const cloudinaryFile = await this.cloudinaryService
       .uploadImage(file)
       .catch((error) => {
         throw new HttpException(
@@ -60,17 +68,12 @@ export class AppUserController {
         );
       });
 
-    const userWithCloudinaryPublicId: CreateAppUserDtoWithCloudinaryPublicId = {
-      ...createAppUserDto,
-      cloudinary_public_id: cloudinaryFile.public_id,
-    };
-
     const createdUserModel = await this.appUserService.create({
       imagePath: cloudinaryFile.url,
       userName: createAppUserDto.userName,
       password: createAppUserDto.password,
-      role: createAppUserDto.role || Role.Admin,
-      cloudinary_public_id: userWithCloudinaryPublicId.cloudinary_public_id,
+      // role: createAppUserDto.role || Role.Admin,
+      cloudinary_public_id: cloudinaryFile.cloudinary_public_id,
     });
 
     const responseUserDto = transformAppUserToResponse(createdUserModel);
@@ -150,7 +153,7 @@ export class AppUserController {
     let cloudinaryFile: UploadApiResponse | UploadApiErrorResponse;
 
     if (file) {
-      const deletedImage = await this.cloudlinaryService
+      const deletedImage = await this.cloudinaryService
         .removeImage(userModel.cloudinary_public_id)
         .catch(async (error) => {
           throw new HttpException(
@@ -158,7 +161,7 @@ export class AppUserController {
             HttpStatus.UNSUPPORTED_MEDIA_TYPE,
           );
         });
-      cloudinaryFile = await this.cloudlinaryService
+      cloudinaryFile = await this.cloudinaryService
         .uploadImage(file)
         .catch((error) => {
           throw new HttpException(
@@ -200,7 +203,7 @@ export class AppUserController {
     }
 
     const userModel = await this.appUserService.remove({ id: +id });
-    const deletedImage = await this.cloudlinaryService
+    const deletedImage = await this.cloudinaryService
       .removeImage(userModel.cloudinary_public_id)
       .catch((error) => {
         throw new HttpException(

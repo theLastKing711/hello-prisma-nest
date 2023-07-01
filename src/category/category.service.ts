@@ -1,26 +1,99 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Prisma } from '@prisma/client';
+import { Category } from './entities/category.entity';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class CategoryService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  saltOrRounds = 10;
+
+  constructor(private prisma: PrismaService) {}
+  async create(data: Prisma.CategoryCreateInput) {
+    return this.prisma.category.create({
+      data,
+    });
   }
 
-  findAll() {
-    return `This action returns all category`;
+  async findAll(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.CategoryWhereUniqueInput;
+    where?: Prisma.CategoryWhereInput;
+    orderBy?: Prisma.CategoryOrderByWithRelationInput;
+  }): Promise<Category[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.category.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(
+    categoryWhereUniqueInput: Prisma.CategoryWhereUniqueInput,
+  ): Promise<Category | null> {
+    const categoryModel = await this.prisma.category.findUnique({
+      where: categoryWhereUniqueInput,
+    });
+
+    if (!categoryModel) {
+      return null;
+    }
+
+    return categoryModel;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async findOneByName(name: string): Promise<Category | null> {
+    const categoryModel = await this.prisma.category.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    if (!categoryModel) {
+      return null;
+    }
+
+    return categoryModel;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async update(params: {
+    where: Prisma.CategoryWhereUniqueInput;
+    data: Prisma.CategoryUpdateInput;
+  }): Promise<Category> {
+    const { where, data } = params;
+
+    return this.prisma.category.update({
+      data,
+      where,
+    });
+  }
+
+  async remove(where: Prisma.CategoryWhereUniqueInput): Promise<Category> {
+    return this.prisma.category.delete({
+      where,
+    });
+  }
+
+  async isCategoryNameDuplicated(
+    sentUserId: number,
+    setName: string,
+  ): Promise<boolean> {
+    const categorySearchedByName = await this.findOneByName(setName);
+
+    if (!categorySearchedByName) {
+      return false;
+    }
+
+    if (
+      categorySearchedByName.name === setName &&
+      sentUserId !== categorySearchedByName.id
+    ) {
+      return true;
+    }
+
+    return false;
   }
 }

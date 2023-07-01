@@ -15,14 +15,15 @@ import { CategoryModule } from './category/category.module';
   imports: [AppUserModule, AuthModule, CloudinaryModule, CategoryModule],
   controllers: [AppController],
   providers: [
-    AppUserService,
+    ImageService,
     PrismaService,
     AppService,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    ImageService,
+    AppUserService,
+    CategoryModule,
   ],
 })
 export class AppModule {}
