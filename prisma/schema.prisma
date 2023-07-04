@@ -53,7 +53,7 @@ model Product {
 
   inventories Inventory[]
 
-  InvoiceDetails InvoiceDetails[]
+  invoiceDetails InvoiceDetails[]
 }
 
 model Invoice {
@@ -71,7 +71,7 @@ model InvoiceDetails {
   productId       Int
   invoice         Invoice  @relation(fields: [invoiceId], references: [id])
   invoiceId       Int
-  ProductQuantity Int
+  productQuantity Int
 }
 
 model AppUser {
@@ -102,8 +102,8 @@ model Discount {
   createdAt DateTime @default(now())
   product   Product  @relation(fields: [productId], references: [id])
   productId Int
-  StartDate DateTime @default(now())
-  EndDate   DateTime @default(now())
+  startDate DateTime @default(now())
+  endDate   DateTime @default(now())
   value     Int
 }
 

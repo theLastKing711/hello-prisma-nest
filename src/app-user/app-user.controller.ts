@@ -27,7 +27,7 @@ import { transformAppUserToResponse } from './app-user.utilities';
 import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 
 @Controller('app-user')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class AppUserController {
   constructor(
     private readonly appUserService: AppUserService,
@@ -82,7 +82,7 @@ export class AppUserController {
   }
 
   @Get()
-  @Roles(Role.Admin)
+  // @Roles(Role.Admin)
   async findAll(
     params:
       | {
