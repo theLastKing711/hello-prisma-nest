@@ -1,3 +1,4 @@
+import { ApiTags } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -24,6 +25,7 @@ import { transformProductToResponse } from './product.utilites';
 import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service';
 
 @Controller('product')
+@ApiTags('Product')
 export class ProductController {
   constructor(
     private readonly productService: ProductService,

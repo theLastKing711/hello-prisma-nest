@@ -25,9 +25,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service';
 import { transformAppUserToResponse } from './app-user.utilities';
 import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+import { ApiTags } from '@nestjs/swagger/dist/decorators/api-use-tags.decorator';
 
 @Controller('app-user')
 // @UseGuards(AuthGuard)
+@ApiTags('AppUser')
 export class AppUserController {
   constructor(
     private readonly appUserService: AppUserService,

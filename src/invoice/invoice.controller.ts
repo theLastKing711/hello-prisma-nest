@@ -19,8 +19,10 @@ import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Prisma } from '@prisma/client';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 @Controller('invoice')
+@ApiTags('Invoice')
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}
 
@@ -30,7 +32,7 @@ export class InvoiceController {
     const createdInvoiceModel = await this.invoiceService.create({
       appUser: {
         connect: {
-          id: 1,
+          id: createInvoiceDto.appUserId,
         },
       },
       invoiceDetails: {

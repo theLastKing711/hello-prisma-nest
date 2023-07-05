@@ -23,8 +23,10 @@ import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import { Roles } from 'src/roles/decorators/roles.decorator';
 import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service';
 import { transformCategoryToResponse } from './cateogry.utilities';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('category')
+@ApiTags('Category')
 @Roles(Role.Admin)
 export class CategoryController {
   constructor(

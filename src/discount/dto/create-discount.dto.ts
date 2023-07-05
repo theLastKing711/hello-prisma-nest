@@ -1,28 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-class CreateInvoiceDetails {
+export class CreateDiscountDto {
   @ApiProperty({
     type: Number,
     description: 'This is a required property',
   })
   productId: number;
+
   @ApiProperty({
-    type: Number,
+    type: Date,
     description: 'This is a required property',
   })
-  productQuantity: number;
-}
-export class CreateInvoiceDto {
+  startDate: Date;
+
   @ApiProperty({
-    isArray: true,
-    type: CreateInvoiceDetails,
+    type: Date,
     description: 'This is a required property',
   })
-  invoiceDetails: CreateInvoiceDetails[];
+  endDate: Date;
 
   @ApiProperty({
     type: Number,
     description: 'This is a required property',
   })
-  appUserId: number;
+  value: number;
 }

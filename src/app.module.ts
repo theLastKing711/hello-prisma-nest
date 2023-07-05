@@ -12,9 +12,11 @@ import { ImageService } from './shared/services/image/image.service';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { InvoiceModule } from './invoice/invoice.module';
+import { ReviewModule } from './review/review.module';
+import { DiscountModule } from './discount/discount.module';
 
 @Module({
-  imports: [AppUserModule, AuthModule, CloudinaryModule, CategoryModule, ProductModule, InvoiceModule],
+  imports: [AppUserModule, AuthModule, CloudinaryModule, CategoryModule, ProductModule, InvoiceModule, ReviewModule, DiscountModule],
   controllers: [AppController],
   providers: [
     ImageService,

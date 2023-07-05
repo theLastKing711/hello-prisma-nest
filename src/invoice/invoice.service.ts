@@ -7,9 +7,8 @@ import { ResponseInvoiceDto } from './dto/response.invoice.dto';
 
 @Injectable()
 export class InvoiceService {
-  saltOrRounds = 10;
-
   constructor(private prisma: PrismaService) {}
+
   async create(data: Prisma.InvoiceCreateInput) {
     return this.prisma.invoice.create({
       data,
@@ -41,7 +40,7 @@ export class InvoiceService {
     orderBy?: Prisma.InvoiceOrderByWithRelationInput;
   }): Promise<ResponseInvoiceDto[]> {
     const { skip, take, cursor, where, orderBy } = params;
-    const invoiceModels = await this.prisma.invoice.findMany({
+    const invoiceDtos = await this.prisma.invoice.findMany({
       skip,
       take,
       cursor,
@@ -65,9 +64,9 @@ export class InvoiceService {
         },
       },
     });
-    console.log('invoices', invoiceModels);
+    console.log('invoices', invoiceDtos);
 
-    return invoiceModels;
+    return invoiceDtos;
   }
 
   async findOne(
