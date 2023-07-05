@@ -72,7 +72,7 @@ export class InvoiceService {
 
   async findOne(
     invoiceWhereUniqueInput: Prisma.InvoiceWhereUniqueInput,
-  ): Promise<Invoice | null> {
+  ): Promise<ResponseInvoiceDto | null> {
     const invoiceModel = await this.prisma.invoice.findUnique({
       where: invoiceWhereUniqueInput,
       include: {
@@ -104,7 +104,7 @@ export class InvoiceService {
   async update(params: {
     where: Prisma.InvoiceWhereUniqueInput;
     data: Prisma.InvoiceUpdateInput;
-  }): Promise<Invoice> {
+  }): Promise<ResponseInvoiceDto> {
     const { where, data } = params;
 
     return this.prisma.invoice.update({
@@ -130,7 +130,9 @@ export class InvoiceService {
     });
   }
 
-  async remove(where: Prisma.InvoiceWhereUniqueInput): Promise<Invoice> {
+  async remove(
+    where: Prisma.InvoiceWhereUniqueInput,
+  ): Promise<ResponseInvoiceDto> {
     return this.prisma.invoice.delete({
       where,
       include: {

@@ -1,7 +1,11 @@
-import { Invoice } from '@prisma/client';
-import { CreateInvoiceDetails } from 'src/invoice-details/dto/create-invoice-details.dto';
+import { Invoice, InvoiceDetails, Prisma } from '@prisma/client';
 
 export class CreateInvoiceDto {
-  // invoiceDetails: CreateInvoiceDetails[];
-  appUserId: Invoice['appUserId'];
+  invoiceDetails: CreateInvoiceDetails[];
+  appUserId: number;
+}
+
+class CreateInvoiceDetails {
+  productId: number;
+  productQuantity: number;
 }

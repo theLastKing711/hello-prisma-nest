@@ -11,7 +11,7 @@ export class ResponseInvoiceDto {
     id: number;
     createdAt: Date;
     invoiceId: number;
-    ProductQuantity: number;
+    productQuantity: number;
     productId: number;
     product: {
       name: string;

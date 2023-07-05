@@ -61,15 +61,15 @@ model Invoice {
   createdAt      DateTime         @default(now())
   invoiceDetails InvoiceDetails[]
   appUserId      Int
-  appUser        AppUser          @relation(fields: [appUserId], references: [id])
+  appUser        AppUser          @relation(fields: [appUserId], references: [id], onDelete: Cascade)
 }
 
 model InvoiceDetails {
   id              Int      @id @default(autoincrement())
   createdAt       DateTime @default(now())
-  product         Product  @relation(fields: [productId], references: [id])
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId       Int
-  invoice         Invoice  @relation(fields: [invoiceId], references: [id])
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   invoiceId       Int
   productQuantity Int
 }
@@ -89,9 +89,9 @@ model AppUser {
 model Review {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
-  appUser   AppUser  @relation(fields: [appUserId], references: [id])
+  appUser   AppUser  @relation(fields: [appUserId], references: [id], onDelete: Cascade)
   appUserId Int
   rating    Decimal
   body      String
@@ -100,7 +100,7 @@ model Review {
 model Discount {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
   startDate DateTime @default(now())
   endDate   DateTime @default(now())
@@ -110,7 +110,7 @@ model Discount {
 model ProductDetails {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
   text      String
 }
@@ -118,7 +118,7 @@ model ProductDetails {
 model Inventory {
   id            Int      @id @default(autoincrement())
   createdAt     DateTime @default(now())
-  product       Product  @relation(fields: [productId], references: [id])
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId     Int
   quantity      Int
   currentAmount Int
