@@ -1,10 +1,10 @@
 import { Role } from '@prisma/client';
 
 export class CreateAppUserDto {
-  createdAt: Date;
+  // createdAt: Date;
   userName: string;
   password: string;
-  file: string;
+  file: File;
   role?: Role;
 }
 

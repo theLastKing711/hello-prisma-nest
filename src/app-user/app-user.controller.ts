@@ -42,14 +42,15 @@ export class AppUserController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+          // new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+          // new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
         ],
       }),
     )
     file: Express.Multer.File,
     @Body() createAppUserDto: CreateAppUserDto,
   ) {
+    console.log('file', file);
     const userModel = await this.appUserService.findOneByUserName(
       createAppUserDto.userName,
     );
@@ -75,7 +76,7 @@ export class AppUserController {
       userName: createAppUserDto.userName,
       password: createAppUserDto.password,
       // role: createAppUserDto.role || Role.Admin,
-      cloudinary_public_id: cloudinaryFile.cloudinary_public_id,
+      cloudinary_public_id: cloudinaryFile.public_id,
     });
 
     const responseUserDto = transformAppUserToResponse(createdUserModel);
