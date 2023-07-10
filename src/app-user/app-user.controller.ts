@@ -1,3 +1,4 @@
+import { DateManipluationService } from './../shared/services/date-manipluation/date-manipluation.service';
 import {
   Controller,
   Get,
@@ -14,6 +15,7 @@ import {
   MaxFileSizeValidator,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { AppUserService } from './app-user.service';
 import { CreateAppUserDto } from './dto/create-app-user.dto';
@@ -26,6 +28,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service'
 import { transformAppUserToResponse } from './app-user.utilities';
 import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import { ApiTags } from '@nestjs/swagger/dist/decorators/api-use-tags.decorator';
+import { SortAppUserDto } from './dto/sort-app-user.dto';
 
 @Controller('app-user')
 // @UseGuards(AuthGuard)
@@ -34,6 +37,7 @@ export class AppUserController {
   constructor(
     private readonly appUserService: AppUserService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly dateManipluationService: DateManipluationService,
   ) {}
 
   @Post()
@@ -42,15 +46,14 @@ export class AppUserController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          // new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
-          // new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
         ],
       }),
     )
     file: Express.Multer.File,
     @Body() createAppUserDto: CreateAppUserDto,
   ) {
-    console.log('file', file);
     const userModel = await this.appUserService.findOneByUserName(
       createAppUserDto.userName,
     );
@@ -86,24 +89,96 @@ export class AppUserController {
 
   @Get()
   // @Roles(Role.Admin)
-  async findAll(
-    params:
-      | {
-          skip?: number;
-          take?: number;
-          cursor?: Prisma.AppUserWhereUniqueInput;
-          where?: Prisma.AppUserWhereInput;
-          orderBy?: Prisma.AppUserOrderByWithRelationInput;
-        }
-      | undefined,
-  ) {
-    const userModels = await this.appUserService.findAll(params || {});
+  async findAll(@Query() queryParams: SortAppUserDto) {
+    // console.log('query params', queryParams);
+
+    const [sortKey, sortValue] = queryParams.sort[0].split(',');
+
+    // console.log('queryParams.filter', queryParams.filter);
+
+    const filterRecord: Record<string, string> | undefined =
+      queryParams.filter?.reduce((prev, curr) => {
+        const [filterkey, , filterValue] = curr.split('||');
+        prev[filterkey] = filterValue;
+
+        return prev;
+      }, {});
+
+    const roleFilter = !filterRecord?.role
+      ? undefined
+      : filterRecord.role === 'admin'
+      ? Role.Admin
+      : Role.User;
+
+    // const datePurchaseFilter = !filterRecord?.has_purchased
+    //   ? undefined
+    //   : filterRecord.has_purchased === 'last month'
+    //   ? this.dateManipluationService.getLastMonthDate()
+    //   : this.dateManipluationService.getLastYearDate();
+
+    const userNameFilter = filterRecord?.full_name_search ?? undefined;
+
+    const wherePrismaFilter: Prisma.AppUserWhereInput | undefined =
+      queryParams.filter
+        ? {
+            userName: {
+              startsWith: userNameFilter,
+            },
+            role: roleFilter,
+            // invoices: {
+            //   some: {
+            //     createdAt: {
+            //       gt: undefined,
+            //     },
+            //   },
+            // },
+            ...(filterRecord.has_purchased &&
+              filterRecord.has_purchased == 'last month' && {
+                invoices: {
+                  some: {
+                    createdAt: {
+                      gt: this.dateManipluationService.getLastMonthDate(),
+                    },
+                  },
+                },
+              }),
+            ...(filterRecord.has_purchased &&
+              filterRecord.has_purchased == 'since account creation' && {
+                invoices: {
+                  some: {
+                    createdAt: {
+                      gt: this.dateManipluationService.getLastYearDate(),
+                    },
+                  },
+                },
+              }),
+          }
+        : undefined;
+
+    const userModels = await this.appUserService.findAll({
+      where: wherePrismaFilter,
+      skip: +queryParams.offset,
+      take: +queryParams.limit,
+      orderBy: {
+        ...(sortKey === 'id' && {
+          id: sortValue === 'ASC' ? 'asc' : 'desc',
+        }),
+        ...(sortKey === 'userName' && {
+          userName: sortValue === 'ASC' ? 'asc' : 'desc',
+        }),
+        ...(sortKey === 'createdAt' && {
+          createdAt: sortValue === 'ASC' ? 'asc' : 'desc',
+        }),
+      },
+    });
+
+    const listCount = await this.appUserService.getTotalCount();
 
     const responseAppUserDtos = userModels.map((user) =>
       transformAppUserToResponse(user),
     );
 
-    return responseAppUserDtos;
+    return { data: responseAppUserDtos, total: listCount };
   }
 
   @Get(':id')
@@ -141,10 +216,11 @@ export class AppUserController {
       throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
 
-    const isUserNameDuplicated = await this.appUserService.isUserNameDuplicated(
-      +id,
-      updateAppUserDto.userName,
-    );
+    const isUserNameDuplicated =
+      await this.appUserService.isUpdatedUserNameDuplicated(
+        +id,
+        updateAppUserDto.userName,
+      );
 
     if (isUserNameDuplicated) {
       throw new HttpException(
@@ -220,13 +296,22 @@ export class AppUserController {
     return responseUserDto;
   }
 
-  @Get(':id/validate-userName-duplication')
+  @Post(':id/validate-userName-duplication')
   async validateUserName(
     @Param('id') id: string,
     @Body() userDto: Pick<CreateAppUserDto, 'userName'>,
   ) {
-    return await this.appUserService.isUserNameDuplicated(
+    return await this.appUserService.isUpdatedUserNameDuplicated(
       +id,
+      userDto.userName,
+    );
+  }
+
+  @Post('validate-userName-duplication')
+  async validateUserNameOnCreate(
+    @Body() userDto: Pick<CreateAppUserDto, 'userName'>,
+  ) {
+    return await this.appUserService.isCreatedUserNameDuplicated(
       userDto.userName,
     );
   }

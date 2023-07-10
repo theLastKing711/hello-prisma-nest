@@ -14,9 +14,20 @@ import { ProductModule } from './product/product.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { ReviewModule } from './review/review.module';
 import { DiscountModule } from './discount/discount.module';
+import { SharedService } from './shared/shared.service';
+import { DateManipluationService } from './shared/services/date-manipluation/date-manipluation.service';
 
 @Module({
-  imports: [AppUserModule, AuthModule, CloudinaryModule, CategoryModule, ProductModule, InvoiceModule, ReviewModule, DiscountModule],
+  imports: [
+    AppUserModule,
+    AuthModule,
+    CloudinaryModule,
+    CategoryModule,
+    ProductModule,
+    InvoiceModule,
+    ReviewModule,
+    DiscountModule,
+  ],
   controllers: [AppController],
   providers: [
     ImageService,
@@ -28,6 +39,8 @@ import { DiscountModule } from './discount/discount.module';
     },
     AppUserService,
     CategoryModule,
+    SharedService,
+    DateManipluationService,
   ],
 })
 export class AppModule {}

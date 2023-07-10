@@ -72,8 +72,15 @@ export class AppUserService {
   }): Promise<AppUser> {
     const { where, data } = params;
 
+    const { password: newPassword, ...dataWithoutPassword } = data;
+
     return this.prisma.appUser.update({
-      data,
+      data: {
+        ...dataWithoutPassword,
+        ...(newPassword && {
+          password: newPassword,
+        }),
+      },
       where,
     });
   }
@@ -84,23 +91,41 @@ export class AppUserService {
     });
   }
 
-  async isUserNameDuplicated(
+  async isUpdatedUserNameDuplicated(
     sentUserId: number,
     sentUserName: string,
   ): Promise<boolean> {
-    const userSearchedByUserName = await this.findOneByUserName(sentUserName);
+    const isUpdatedUsernameDuplicated = await this.findOneByUserName(
+      sentUserName,
+    );
 
-    if (!userSearchedByUserName) {
+    if (!isUpdatedUsernameDuplicated) {
       return false;
     }
 
     if (
-      userSearchedByUserName.userName === sentUserName &&
-      sentUserId !== userSearchedByUserName.id
+      isUpdatedUsernameDuplicated.userName === sentUserName &&
+      sentUserId !== isUpdatedUsernameDuplicated.id
     ) {
       return true;
     }
 
     return false;
+  }
+
+  async isCreatedUserNameDuplicated(sentUserName: string): Promise<boolean> {
+    const isCreatedUsernameDuplicated = await this.findOneByUserName(
+      sentUserName,
+    );
+
+    if (!isCreatedUsernameDuplicated) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async getTotalCount() {
+    return this.prisma.appUser.count();
   }
 }
