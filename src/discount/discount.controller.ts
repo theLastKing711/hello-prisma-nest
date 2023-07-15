@@ -1,3 +1,4 @@
+import { DateManipluationService } from './../shared/services/date-manipluation/date-manipluation.service';
 import {
   Controller,
   Get,
@@ -14,11 +15,15 @@ import { CreateDiscountDto } from './dto/create-discount.dto';
 import { UpdateDiscountDto } from './dto/update-discount.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
+import { SortDiscountDto } from './dto/sort-discount.dto';
 
 @Controller('discount')
 @ApiTags('Discount')
 export class DiscountController {
-  constructor(private readonly discountService: DiscountService) {}
+  constructor(
+    private readonly discountService: DiscountService,
+    private readonly dateManipluationService: DateManipluationService,
+  ) {}
 
   @Post()
   async create(@Body() createDiscountDto: CreateDiscountDto) {
@@ -47,10 +52,60 @@ export class DiscountController {
           orderBy?: Prisma.DiscountOrderByWithRelationInput;
         }
       | undefined,
+    queryParams: SortDiscountDto,
   ) {
-    const discountModels = await this.discountService.findAll({});
+    // const [sortKey, sortValue] = queryParams.sort[0].split(',');
 
-    return discountModels;
+    // const filterRecord: Record<string, string> | undefined =
+    //   queryParams.filter?.reduce((prev, curr) => {
+    //     const [filterkey, , filterValue] = curr.split('||');
+    //     prev[filterkey] = filterValue;
+
+    //     return prev;
+    //   }, {});
+
+    // const productNameFilter = filterRecord?.product_name_search ?? undefined;
+
+    // const wherePrismaFilter: Prisma.DiscountWhereInput | undefined =
+    //   queryParams.filter
+    //     ? {
+    //         product: {
+    //           name: {
+    //             startsWith: productNameFilter,
+    //           },
+    //         },
+    //       }
+    //     : undefined;
+
+    const discountModels = await this.discountService.findAll({
+      // where: wherePrismaFilter,
+      skip: +queryParams.offset,
+      take: +queryParams.limit,
+      // orderBy: {
+      //   ...(sortKey === 'id' && {
+      //     id: sortValue === 'ASC' ? 'asc' : 'desc',
+      //   }),
+      //   ...(sortKey === 'startDate' && {
+      //     startDate: sortValue === 'ASC' ? 'asc' : 'desc',
+      //   }),
+      //   ...(sortKey === 'endDate' && {
+      //     endDate: sortValue === 'ASC' ? 'asc' : 'desc',
+      //   }),
+      //   ...(sortKey === 'product' && {
+      //     product: {
+      //       name: sortValue === 'ASC' ? 'asc' : 'desc',
+      //     },
+      //   }),
+      // },
+    });
+
+    const listCount = await this.discountService.getTotalCount();
+
+    // const responseDiscountDtos = discountModels.map((user) =>
+    //   transformDiscountToResponse(user),
+    // );
+
+    return { data: discountModels, total: listCount };
   }
 
   @Get(':id')

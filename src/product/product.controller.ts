@@ -14,6 +14,7 @@ import {
   ParseFilePipe,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -21,8 +22,9 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Prisma } from '@prisma/client';
 import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
-import { transformProductToResponse } from './product.utilites';
+import { transformProductToNonDecimalResponse } from './product.utilites';
 import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service';
+import { SortProductDto } from './dto/sort-product.dto';
 
 @Controller('product')
 @ApiTags('Product')
@@ -85,9 +87,9 @@ export class ProductController {
       cloudinary_public_id: cloudinaryFile.public_id,
     });
 
-    const responseProductDto = transformProductToResponse({
+    const responseProductDto = transformProductToNonDecimalResponse({
       ...createdProductModel,
-      price: parseFloat(createdProductModel.price.toFixed(2)),
+      category: createProductDto,
     });
 
     return responseProductDto;
@@ -104,17 +106,40 @@ export class ProductController {
           orderBy?: Prisma.ProductOrderByWithRelationInput;
         }
       | undefined,
+    @Query() queryParams?: SortProductDto,
   ) {
-    const productModels = await this.productService.findAll(params || {});
+    const filterRecord: Record<string, string> | undefined =
+      queryParams.filter?.reduce((prev, curr) => {
+        const [filterkey, , filterValue] = curr.split('||');
+        prev[filterkey] = filterValue;
 
-    const responseProductServiceDtos = productModels.map((product) =>
-      transformProductToResponse({
+        return prev;
+      }, {});
+
+    const nameFilter = filterRecord?.name ?? undefined;
+
+    const productModels = await this.productService.findAll({
+      where: {
+        name: {
+          startsWith: nameFilter,
+        },
+      },
+      skip: +queryParams.offset,
+      take: +queryParams.limit,
+    });
+
+    const listCount = await this.productService.getTotalCount();
+
+    const responseProductDtos = productModels.map((product) =>
+      transformProductToNonDecimalResponse({
         ...product,
-        price: parseFloat(product.price.toFixed(2)),
       }),
     );
 
-    return responseProductServiceDtos;
+    return {
+      data: responseProductDtos,
+      total: listCount,
+    };
   }
 
   @Get('list')
@@ -122,18 +147,23 @@ export class ProductController {
     return this.productService.findList();
   }
 
+  @Get('list-with-category')
+  async findListWithCategory() {
+    console.log('hello world');
+    return this.productService.findListWithCategoryId();
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const productModel = await this.productService.findOne({ id: +id });
+    const responseProductDto = await this.productService.findOne({ id: +id });
 
-    if (!productModel) {
+    if (!responseProductDto) {
       throw new HttpException('Product was not found', HttpStatus.NOT_FOUND);
     }
 
-    const responseProductDto = transformProductToResponse({
-      ...productModel,
-      price: parseFloat(productModel.price.toFixed(2)),
-    });
+    // const responseProductDto = transformProductToNonDecimalResponse({
+    //   ...productModel,
+    // });
 
     return responseProductDto;
   }
@@ -201,6 +231,7 @@ export class ProductController {
       data: {
         imagePath: productModel.imagePath,
         name: updateProductDto.name,
+        price: updateProductDto.price,
         isBestSeller: this.convertStringToBoolean(
           updateProductDto.isBestSeller,
         ),
@@ -218,12 +249,10 @@ export class ProductController {
       },
     });
 
-    const responseProductDto = transformProductToResponse({
-      ...updatedProductModel,
-      price: parseFloat(updatedProductModel.price.toFixed(2)),
-    });
+    // const responseProductDto =
+    //   transformProductToNonDecimalResponse(updatedProductModel);
 
-    return responseProductDto;
+    return updatedProductModel;
   }
 
   @Delete(':id')
@@ -245,9 +274,8 @@ export class ProductController {
         );
       });
 
-    const responseProductDto = transformProductToResponse({
+    const responseProductDto = transformProductToNonDecimalResponse({
       ...productModel,
-      price: parseFloat(productModel.price.toFixed(2)),
     });
 
     return responseProductDto;

@@ -13,6 +13,7 @@ import {
   ParseFilePipe,
   UploadedFile,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -24,10 +25,11 @@ import { Roles } from 'src/roles/decorators/roles.decorator';
 import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service';
 import { transformCategoryToResponse } from './cateogry.utilities';
 import { ApiTags } from '@nestjs/swagger';
+import { SortCategoryDto } from './dto/sort-category.dto';
 
 @Controller('category')
 @ApiTags('Category')
-@Roles(Role.Admin)
+// @Roles(Role.Admin)
 export class CategoryController {
   constructor(
     private readonly categoryService: CategoryService,
@@ -90,19 +92,45 @@ export class CategoryController {
           orderBy?: Prisma.CategoryOrderByWithRelationInput;
         }
       | undefined,
+    @Query() queryParams?: SortCategoryDto,
   ) {
-    const categoryModels = await this.categoryService.findAll(params || {});
+    const filterRecord: Record<string, string> | undefined =
+      queryParams.filter?.reduce((prev, curr) => {
+        const [filterkey, , filterValue] = curr.split('||');
+        prev[filterkey] = filterValue;
+
+        return prev;
+      }, {});
+
+    const nameFilter = filterRecord?.name ?? undefined;
+
+    const categoryModels = await this.categoryService.findAll({
+      where: {
+        name: {
+          startsWith: nameFilter,
+        },
+      },
+      skip: +queryParams.offset,
+      take: +queryParams.limit,
+    });
+
+    const listCount = await this.categoryService.getTotalCount();
 
     const responseCategoryServiceDtos = categoryModels.map((user) =>
       transformCategoryToResponse(user),
     );
 
-    return responseCategoryServiceDtos;
+    return {
+      data: responseCategoryServiceDtos,
+      total: listCount,
+    };
   }
 
   @Get('list')
   async findList() {
-    return this.categoryService.findList();
+    const categoriesList = await this.categoryService.findList();
+
+    return categoriesList;
   }
 
   @Get(':id')
@@ -148,7 +176,7 @@ export class CategoryController {
 
     if (isCategoryNameDuplicated) {
       throw new HttpException(
-        'The user with given username already exist, please change username',
+        'The user with given name already exist, please change name',
         HttpStatus.CONFLICT,
       );
     }
@@ -218,14 +246,21 @@ export class CategoryController {
     return responseUserDto;
   }
 
-  @Get(':id/validate-name-duplication')
-  async validateCategory(
+  @Post(':id/validate-name-duplication')
+  async validateCategoryNameOnUpdate(
     @Param('id') id: string,
-    @Body() catgoryDto: Pick<CreateCategoryDto, 'name'>,
+    @Body() userDto: Pick<CreateCategoryDto, 'name'>,
   ) {
-    return await this.categoryService.isCategoryNameDuplicated(
+    return await this.categoryService.isUpdatedCategoryDuplicated(
       +id,
-      catgoryDto.name,
+      userDto.name,
     );
+  }
+
+  @Post('validate-name-duplication')
+  async validateCategoryNameOnCreate(
+    @Body() userDto: Pick<CreateCategoryDto, 'name'>,
+  ) {
+    return await this.categoryService.isCreatedCategroyDuplicated(userDto.name);
   }
 }

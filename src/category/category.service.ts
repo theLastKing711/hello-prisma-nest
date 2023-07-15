@@ -106,4 +106,38 @@ export class CategoryService {
       },
     });
   }
+
+  async isUpdatedCategoryDuplicated(
+    sentUserId: number,
+    sentName: string,
+  ): Promise<boolean> {
+    const isUpdatedUsernameDuplicated = await this.findOneByName(sentName);
+
+    if (!isUpdatedUsernameDuplicated) {
+      return false;
+    }
+
+    if (
+      isUpdatedUsernameDuplicated.name === sentName &&
+      sentUserId !== isUpdatedUsernameDuplicated.id
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  async isCreatedCategroyDuplicated(sentName: string): Promise<boolean> {
+    const isCreatedUsernameDuplicated = await this.findOneByName(sentName);
+
+    if (!isCreatedUsernameDuplicated) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async getTotalCount(): Promise<number> {
+    return this.prisma.category.count();
+  }
 }

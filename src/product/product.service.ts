@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Product } from '@prisma/client';
-import { ProductListDto } from './entities/product-list.dto';
+import {
+  ProductListDto,
+  ProductListWithCategoryIdDto,
+} from './entities/product-list.dto';
 import { PrismaService } from 'src/prisma.service';
+import { ResponseProductDto } from './dto/response-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -9,6 +13,13 @@ export class ProductService {
   async create(data: Prisma.ProductCreateInput) {
     return this.prisma.product.create({
       data,
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
   }
 
@@ -18,7 +29,7 @@ export class ProductService {
     cursor?: Prisma.ProductWhereUniqueInput;
     where?: Prisma.ProductWhereInput;
     orderBy?: Prisma.ProductOrderByWithRelationInput;
-  }): Promise<Product[]> {
+  }): Promise<ResponseProductDto[]> {
     const { skip, take, cursor, where, orderBy } = params;
     return this.prisma.product.findMany({
       skip,
@@ -26,14 +37,28 @@ export class ProductService {
       cursor,
       where,
       orderBy,
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
   }
 
   async findOne(
     productWhereUniqueInput: Prisma.ProductWhereUniqueInput,
-  ): Promise<Product | null> {
+  ): Promise<ResponseProductDto | null> {
     const productModel = await this.prisma.product.findUnique({
       where: productWhereUniqueInput,
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     if (!productModel) {
@@ -43,10 +68,17 @@ export class ProductService {
     return productModel;
   }
 
-  async findOneByName(name: string): Promise<Product | null> {
+  async findOneByName(name: string): Promise<ResponseProductDto | null> {
     const productModel = await this.prisma.product.findFirst({
       where: {
         name,
+      },
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
@@ -66,12 +98,43 @@ export class ProductService {
     return this.prisma.product.update({
       data,
       where,
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
   }
 
-  async remove(where: Prisma.ProductWhereUniqueInput): Promise<Product> {
+  async findListWithCategoryId(): Promise<ProductListWithCategoryIdDto[]> {
+    return this.prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+  }
+
+  async remove(
+    where: Prisma.ProductWhereUniqueInput,
+  ): Promise<ResponseProductDto> {
     return this.prisma.product.delete({
       where,
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
   }
 
@@ -102,5 +165,9 @@ export class ProductService {
         name: true,
       },
     });
+  }
+
+  async getTotalCount(): Promise<number> {
+    return this.prisma.product.count();
   }
 }

@@ -1,4 +1,4 @@
-export class SortAppUserDto {
+export class SortCategoryDto {
   limit: string;
   page: string;
   sort: string[];

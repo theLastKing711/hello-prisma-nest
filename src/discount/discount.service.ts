@@ -39,9 +39,18 @@ export class DiscountService {
           select: {
             name: true,
           },
+          include: {
+            category: {
+              select: {
+                id: true,
+              },
+            },
+          },
         },
       },
     });
+
+    console.log('discounts dto', discountDtos);
 
     return discountDtos;
   }
@@ -99,5 +108,9 @@ export class DiscountService {
         },
       },
     });
+  }
+
+  async getTotalCount() {
+    return this.prisma.discount.count();
   }
 }

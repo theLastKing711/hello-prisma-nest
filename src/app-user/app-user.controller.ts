@@ -297,7 +297,7 @@ export class AppUserController {
   }
 
   @Post(':id/validate-userName-duplication')
-  async validateUserName(
+  async validateUserNameOnUpdate(
     @Param('id') id: string,
     @Body() userDto: Pick<CreateAppUserDto, 'userName'>,
   ) {
