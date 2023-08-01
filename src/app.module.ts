@@ -16,6 +16,7 @@ import { ReviewModule } from './review/review.module';
 import { DiscountModule } from './discount/discount.module';
 import { SharedService } from './shared/shared.service';
 import { DateManipluationService } from './shared/services/date-manipluation/date-manipluation.service';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { DateManipluationService } from './shared/services/date-manipluation/dat
     InvoiceModule,
     ReviewModule,
     DiscountModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [

@@ -155,4 +155,8 @@ export class ReviewService {
 
     return reviewDtoNonDecimal;
   }
+
+  async getTotalCount() {
+    return this.prisma.discount.count();
+  }
 }

@@ -14,6 +14,7 @@ export class DiscountService {
         product: {
           select: {
             name: true,
+            id: true,
           },
         },
       },
@@ -38,8 +39,7 @@ export class DiscountService {
         product: {
           select: {
             name: true,
-          },
-          include: {
+            id: true,
             category: {
               select: {
                 id: true,
@@ -64,6 +64,7 @@ export class DiscountService {
         product: {
           select: {
             name: true,
+            id: true,
           },
         },
       },
@@ -89,6 +90,7 @@ export class DiscountService {
         product: {
           select: {
             name: true,
+            id: true,
           },
         },
       },
@@ -104,6 +106,7 @@ export class DiscountService {
         product: {
           select: {
             name: true,
+            id: true,
           },
         },
       },

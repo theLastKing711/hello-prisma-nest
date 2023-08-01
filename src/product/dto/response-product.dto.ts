@@ -10,6 +10,7 @@ export class ResponseProductDto {
   imagePath: string;
   isBestSeller: boolean;
   cloudinary_public_id: string;
+  isFeatured: boolean;
 }
 
 export class ResponseProductDtoNonDecimal {
@@ -21,6 +22,7 @@ export class ResponseProductDtoNonDecimal {
   price: number;
   imagePath: string;
   isBestSeller: boolean;
+  isFeatured: boolean;
 }
 
 class ResponseCategoryDto {

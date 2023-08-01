@@ -110,12 +110,6 @@ export class AppUserController {
       ? Role.Admin
       : Role.User;
 
-    // const datePurchaseFilter = !filterRecord?.has_purchased
-    //   ? undefined
-    //   : filterRecord.has_purchased === 'last month'
-    //   ? this.dateManipluationService.getLastMonthDate()
-    //   : this.dateManipluationService.getLastYearDate();
-
     const userNameFilter = filterRecord?.full_name_search ?? undefined;
 
     const wherePrismaFilter: Prisma.AppUserWhereInput | undefined =
@@ -125,15 +119,8 @@ export class AppUserController {
               startsWith: userNameFilter,
             },
             role: roleFilter,
-            // invoices: {
-            //   some: {
-            //     createdAt: {
-            //       gt: undefined,
-            //     },
-            //   },
-            // },
             ...(filterRecord.has_purchased &&
-              filterRecord.has_purchased == 'last month' && {
+              filterRecord.has_purchased == 'this month' && {
                 invoices: {
                   some: {
                     createdAt: {
@@ -143,7 +130,7 @@ export class AppUserController {
                 },
               }),
             ...(filterRecord.has_purchased &&
-              filterRecord.has_purchased == 'since account creation' && {
+              filterRecord.has_purchased == 'this year' && {
                 invoices: {
                   some: {
                     createdAt: {

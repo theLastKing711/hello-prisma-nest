@@ -1,3 +1,4 @@
+import { DateManipluationService } from 'src/shared/services/date-manipluation/date-manipluation.service';
 import {
   Controller,
   Get,
@@ -8,17 +9,22 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { Prisma } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
+import { SortReviewDto } from './dto/sortReviewDto';
 
 @Controller('review')
 @ApiTags('Review')
 export class ReviewController {
-  constructor(private readonly reviewService: ReviewService) {}
+  constructor(
+    private readonly reviewService: ReviewService,
+    private readonly dateManipluationService: DateManipluationService,
+  ) {}
 
   convertStringToBoolean(value: string) {
     if (value === 'true') return true;
@@ -52,15 +58,83 @@ export class ReviewController {
       | {
           skip?: number;
           take?: number;
-          cursor?: Prisma.ReviewWhereUniqueInput;
-          where?: Prisma.ReviewWhereInput;
-          orderBy?: Prisma.ReviewOrderByWithRelationInput;
+          cursor?: Prisma.DiscountWhereUniqueInput;
+          where?: Prisma.DiscountWhereInput;
+          orderBy?: Prisma.DiscountOrderByWithRelationInput;
         }
       | undefined,
+    @Query()
+    queryParams: SortReviewDto,
   ) {
-    const reviewDtos = await this.reviewService.findAll(params || {});
+    
+    const [sortKey, sortValue] = queryParams.sort?.[0]?.split(',');
 
-    return reviewDtos;
+    const filterRecord: Record<string, string> | undefined =
+      queryParams.filter?.reduce((prev, curr) => {
+        const [filterkey, , filterValue] = curr.split('||');
+        prev[filterkey] = filterValue;
+
+        return prev;
+      }, {});
+
+    const productNameFilter = filterRecord?.product_name_search ?? undefined;
+
+    const wherePrismaFilter: Prisma.DiscountWhereInput | undefined =
+      queryParams.filter
+        ? {
+            product: {
+              name: {
+                startsWith: productNameFilter,
+              },
+            },
+            ...(filterRecord.time_applied &&
+              filterRecord.time_applied == 'this month' && {
+                createdAt: {
+                  gt: this.dateManipluationService.getLastMonthDate(),
+                },
+              }),
+            ...(filterRecord.time_applied &&
+              filterRecord.time_applied == 'this year' && {
+                createdAt: {
+                  gt: this.dateManipluationService.getLastYearDate(),
+                },
+              }),
+          }
+        : undefined;
+
+    const orderBy: Prisma.DiscountOrderByWithRelationInput | undefined =
+      sortKey && sortValue
+        ? {
+            ...(sortKey === 'id' && {
+              id: sortValue === 'ASC' ? 'asc' : 'desc',
+            }),
+            ...(sortKey === 'startDate' && {
+              startDate: sortValue === 'ASC' ? 'asc' : 'desc',
+            }),
+            ...(sortKey === 'endDate' && {
+              endDate: sortValue === 'ASC' ? 'asc' : 'desc',
+            }),
+            ...(sortKey === 'value' && {
+              value: sortValue === 'ASC' ? 'asc' : 'desc',
+            }),
+            ...(sortKey === 'product' && {
+              product: {
+                name: sortValue === 'ASC' ? 'asc' : 'desc',
+              },
+            }),
+          }
+        : undefined;
+
+    const reviewModels = await this.reviewService.findAll({
+      where: wherePrismaFilter,
+      skip: +queryParams.offset,
+      take: +queryParams.limit,
+      orderBy,
+    });
+
+    const listCount = await this.reviewService.getTotalCount();
+
+    return { data: reviewModels, total: listCount };
   }
 
   @Get(':id')

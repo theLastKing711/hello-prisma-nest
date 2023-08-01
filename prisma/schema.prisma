@@ -45,6 +45,8 @@ model Product {
 
   isBestSeller Boolean @default(false)
 
+  isFeatured Boolean @default(true)
+
   reviews Review[]
 
   discounts Discount[]

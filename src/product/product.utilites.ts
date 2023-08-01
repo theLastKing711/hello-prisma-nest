@@ -17,6 +17,7 @@ export const transformProductToNonDecimalResponse = (
     createdAt: product.createdAt,
     imagePath: product.imagePath,
     name: product.name,
+    isFeatured: product.isFeatured,
   };
 
   return responseProduct;

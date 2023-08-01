@@ -7,4 +7,5 @@ export class Product {
   imagePath: string;
   isBestSeller: boolean;
   cloudinary_public_id: string;
+  isFeatured: boolean;
 }

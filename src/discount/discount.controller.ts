@@ -9,6 +9,7 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { DiscountService } from './discount.service';
 import { CreateDiscountDto } from './dto/create-discount.dto';
@@ -27,6 +28,7 @@ export class DiscountController {
 
   @Post()
   async create(@Body() createDiscountDto: CreateDiscountDto) {
+    console.log('hello world', createDiscountDto);
     const createdDiscountModel = await this.discountService.create({
       product: {
         connect: {
@@ -52,58 +54,77 @@ export class DiscountController {
           orderBy?: Prisma.DiscountOrderByWithRelationInput;
         }
       | undefined,
+    @Query()
     queryParams: SortDiscountDto,
   ) {
-    // const [sortKey, sortValue] = queryParams.sort[0].split(',');
+    console.log('query params', queryParams);
 
-    // const filterRecord: Record<string, string> | undefined =
-    //   queryParams.filter?.reduce((prev, curr) => {
-    //     const [filterkey, , filterValue] = curr.split('||');
-    //     prev[filterkey] = filterValue;
+    const [sortKey, sortValue] = queryParams.sort?.[0]?.split(',');
 
-    //     return prev;
-    //   }, {});
+    const filterRecord: Record<string, string> | undefined =
+      queryParams.filter?.reduce((prev, curr) => {
+        const [filterkey, , filterValue] = curr.split('||');
+        prev[filterkey] = filterValue;
 
-    // const productNameFilter = filterRecord?.product_name_search ?? undefined;
+        return prev;
+      }, {});
 
-    // const wherePrismaFilter: Prisma.DiscountWhereInput | undefined =
-    //   queryParams.filter
-    //     ? {
-    //         product: {
-    //           name: {
-    //             startsWith: productNameFilter,
-    //           },
-    //         },
-    //       }
-    //     : undefined;
+    const productNameFilter = filterRecord?.product_name_search ?? undefined;
+
+    const wherePrismaFilter: Prisma.DiscountWhereInput | undefined =
+      queryParams.filter
+        ? {
+            product: {
+              name: {
+                startsWith: productNameFilter,
+              },
+            },
+            ...(filterRecord.time_applied &&
+              filterRecord.time_applied == 'this month' && {
+                createdAt: {
+                  gt: this.dateManipluationService.getLastMonthDate(),
+                },
+              }),
+            ...(filterRecord.time_applied &&
+              filterRecord.time_applied == 'this year' && {
+                createdAt: {
+                  gt: this.dateManipluationService.getLastYearDate(),
+                },
+              }),
+          }
+        : undefined;
+
+    const orderBy: Prisma.DiscountOrderByWithRelationInput | undefined =
+      sortKey && sortValue
+        ? {
+            ...(sortKey === 'id' && {
+              id: sortValue === 'ASC' ? 'asc' : 'desc',
+            }),
+            ...(sortKey === 'startDate' && {
+              startDate: sortValue === 'ASC' ? 'asc' : 'desc',
+            }),
+            ...(sortKey === 'endDate' && {
+              endDate: sortValue === 'ASC' ? 'asc' : 'desc',
+            }),
+            ...(sortKey === 'value' && {
+              value: sortValue === 'ASC' ? 'asc' : 'desc',
+            }),
+            ...(sortKey === 'product' && {
+              product: {
+                name: sortValue === 'ASC' ? 'asc' : 'desc',
+              },
+            }),
+          }
+        : undefined;
 
     const discountModels = await this.discountService.findAll({
-      // where: wherePrismaFilter,
+      where: wherePrismaFilter,
       skip: +queryParams.offset,
       take: +queryParams.limit,
-      // orderBy: {
-      //   ...(sortKey === 'id' && {
-      //     id: sortValue === 'ASC' ? 'asc' : 'desc',
-      //   }),
-      //   ...(sortKey === 'startDate' && {
-      //     startDate: sortValue === 'ASC' ? 'asc' : 'desc',
-      //   }),
-      //   ...(sortKey === 'endDate' && {
-      //     endDate: sortValue === 'ASC' ? 'asc' : 'desc',
-      //   }),
-      //   ...(sortKey === 'product' && {
-      //     product: {
-      //       name: sortValue === 'ASC' ? 'asc' : 'desc',
-      //     },
-      //   }),
-      // },
+      orderBy,
     });
 
     const listCount = await this.discountService.getTotalCount();
-
-    // const responseDiscountDtos = discountModels.map((user) =>
-    //   transformDiscountToResponse(user),
-    // );
 
     return { data: discountModels, total: listCount };
   }

@@ -5,4 +5,5 @@ export class CreateProductDto {
   price: number;
   file: string;
   isBestSeller: string;
+  isFeatured?: boolean;
 }
