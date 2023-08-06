@@ -6,6 +6,11 @@ export class CustomerProduct {
   price: Prisma.Decimal;
   isBestSeller: boolean;
   discounts: ResponseDiscount[];
+  reviews: Review[];
+}
+
+class Review {
+  rating: Prisma.Decimal;
 }
 
 class ResponseDiscount {

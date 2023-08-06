@@ -1,10 +1,9 @@
-export class ResponseCustomerProductDto {
+export class LatestProductListDto {
   id: number;
+  imagePath: string;
   name: string;
   price: number;
-  isBestSeller: boolean;
   discount: ResponseDiscount | null;
-  averageRating: number;
 }
 
 class ResponseDiscount {

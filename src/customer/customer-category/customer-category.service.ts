@@ -112,7 +112,6 @@ export class CustomerCategoryService {
       select: {
         id: true,
         name: true,
-        imagePath: true,
       },
     });
   }
