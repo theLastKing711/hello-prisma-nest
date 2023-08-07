@@ -28,7 +28,6 @@ export class DiscountController {
 
   @Post()
   async create(@Body() createDiscountDto: CreateDiscountDto) {
-    console.log('hello world', createDiscountDto);
     const createdDiscountModel = await this.discountService.create({
       product: {
         connect: {
@@ -57,7 +56,6 @@ export class DiscountController {
     @Query()
     queryParams: SortDiscountDto,
   ) {
-    console.log('query params', queryParams);
 
     const [sortKey, sortValue] = queryParams.sort?.[0]?.split(',');
 

@@ -28,7 +28,6 @@ export class InvoiceController {
 
   @Post()
   async create(@Body() createInvoiceDto: CreateInvoiceDto) {
-    console.log('app user id', createInvoiceDto.appUserId);
     const createdInvoiceModel = await this.invoiceService.create({
       appUser: {
         connect: {

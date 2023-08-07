@@ -19,7 +19,7 @@ export class CustomerProductController {
 
     const categoryFilter: number | Prisma.IntFilter | undefined =
       queryParams.categoryIds && {
-        in: queryParams.categoryIds,
+        in: queryParams.categoryIds.map((x) => +x),
       };
 
     const priceFilter:
@@ -48,7 +48,7 @@ export class CustomerProductController {
       };
 
     const productModels = await this.customerProductService.findAll({
-      take: queryParams.perPage,
+      take: +queryParams.perPage,
       where: {
         categoryId: categoryFilter,
         price: priceFilter,
@@ -61,7 +61,8 @@ export class CustomerProductController {
       transformCustomerProductToNonDecimalResponse,
     );
 
-    const totalProductsCount = this.customerProductService.getTotalCount();
+    const totalProductsCount =
+      await this.customerProductService.getTotalCount();
 
     return {
       data: productDtos,

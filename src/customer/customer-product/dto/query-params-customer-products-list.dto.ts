@@ -1,7 +1,8 @@
 export class queryParamsCustomerProductsList {
-  perPage?: number = 6;
-  categoryIds?: number[];
-  rating?: number;
-  prices?: number[];
+  sort: string;
+  perPage?: string = '6';
+  categoryIds?: string[];
+  rating?: string;
+  prices?: string;
   search?: string;
 }

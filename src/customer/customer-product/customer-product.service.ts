@@ -1,11 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
-import { ResponseProductDto } from 'src/product/dto/response-product.dto';
-import {
-  ProductListWithCategoryIdDto,
-  ProductListDto,
-} from 'src/product/entities/product-list.dto';
+import { ProductListWithCategoryIdDto } from 'src/product/entities/product-list.dto';
 import { CustomerProduct } from './entities/customer-product.entity';
 import { productRatingFilterDto } from './dto/productRatingFilter.dto';
 
@@ -139,8 +135,6 @@ export class CustomerProductService {
   }
 
   async getRatingFilterList(): Promise<productRatingFilterDto[]> {
-    console.log('hellow world');
-
     const gteFourStarsStats = await this.prisma.review.aggregate({
       _avg: {
         rating: true,

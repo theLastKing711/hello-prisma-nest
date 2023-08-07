@@ -50,8 +50,6 @@ export class DiscountService {
       },
     });
 
-    console.log('discounts dto', discountDtos);
-
     return discountDtos;
   }
 

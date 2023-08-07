@@ -64,7 +64,6 @@ export class InvoiceService {
         },
       },
     });
-    console.log('invoices', invoiceDtos);
 
     return invoiceDtos;
   }

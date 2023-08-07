@@ -7,6 +7,7 @@ export const transformCustomerProductToNonDecimalResponse = (
 ) => {
   const responseProduct: ResponseCustomerProductDto = {
     id: product.id,
+    imagePath: product.imagePath,
     isBestSeller: product.isBestSeller,
     price: convertDecimalToFloat(product.price),
     name: product.name,

@@ -1,5 +1,6 @@
 export class ResponseCustomerProductDto {
   id: number;
+  imagePath: string;
   name: string;
   price: number;
   isBestSeller: boolean;

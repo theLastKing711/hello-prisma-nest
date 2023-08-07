@@ -149,7 +149,6 @@ export class ProductController {
 
   @Get('list-with-category')
   async findListWithCategory() {
-    console.log('hello world');
     return this.productService.findListWithCategoryId();
   }
 
