@@ -21,7 +21,7 @@ export const transformCustomerProductToNonDecimalResponse = (
   return responseProduct;
 };
 
-const calculateAverage = (values: Prisma.Decimal[]) => {
+export const calculateAverage = (values: Prisma.Decimal[]) => {
   const total = values.reduce((prev, curr) => {
     return prev + convertDecimalToFloat(curr);
   }, 0);

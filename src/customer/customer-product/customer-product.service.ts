@@ -93,31 +93,37 @@ export class CustomerProductService {
     });
   }
 
-  // async findOne(
-  //   productWhereUniqueInput: Prisma.ProductWhereUniqueInput,
-  // ): Promise<CustomerProduct | null> {
-  //   const productModel = await this.prisma.product.findUnique({
-  //     where: productWhereUniqueInput,
-  //     select: {
-  //       id: true,
-  //       name: true,
-  //       price: true,
-  //       isBestSeller: true,
-  //       discounts: {
-  //         select: {
-  //           id: true,
-  //           value: true,
-  //         },
-  //       },
-  //     },
-  //   });
+  async findOne(id: number): Promise<CustomerProduct | null> {
+    const productModel = await this.prisma.product.findUnique({
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        isBestSeller: true,
+        imagePath: true,
+        discounts: {
+          select: {
+            id: true,
+            value: true,
+          },
+        },
+        reviews: {
+          select: {
+            rating: true,
+          },
+        },
+      },
+      where: {
+        id,
+      },
+    });
 
-  //   if (!productModel) {
-  //     return null;
-  //   }
+    if (!productModel) {
+      return null;
+    }
 
-  //   return productModel;
-  // }
+    return productModel;
+  }
 
   async findListWithCategoryId(): Promise<ProductListWithCategoryIdDto[]> {
     return this.prisma.product.findMany({
