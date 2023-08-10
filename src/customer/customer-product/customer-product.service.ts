@@ -98,6 +98,7 @@ export class CustomerProductService {
       select: {
         id: true,
         name: true,
+        details: true,
         price: true,
         isBestSeller: true,
         imagePath: true,

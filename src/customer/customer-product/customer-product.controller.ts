@@ -1,7 +1,17 @@
 import { CustomerCategoryService } from './../customer-category/customer-category.service';
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { CustomerProductService } from './customer-product.service';
-import { transformCustomerProductToNonDecimalResponse } from './customerProduct.utilites';
+import {
+  transformCustomerProductDetailsToNonDecimalResponse,
+  transformCustomerProductToNonDecimalResponse,
+} from './customerProduct.utilites';
 import { queryParamsCustomerProductsList } from './dto/query-params-customer-products-list.dto';
 import { Prisma } from '@prisma/client';
 import { DecimalJsLike } from '@prisma/client/runtime';
@@ -103,12 +113,18 @@ export class CustomerProductController {
     };
   }
 
-  @Get(':/id')
+  @Get('/:id')
   async findById(@Param('id') id: string) {
     const productModel = await this.customerProductService.findOne(+id);
 
+    console.log('product model', productModel);
+
+    if (!productModel) {
+      throw new HttpException('Product was not found', HttpStatus.NOT_FOUND);
+    }
+
     const productDto =
-      transformCustomerProductToNonDecimalResponse(productModel);
+      transformCustomerProductDetailsToNonDecimalResponse(productModel);
 
     return productDto;
   }
