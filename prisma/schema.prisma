@@ -55,7 +55,8 @@ model Product {
 
   inventories Inventory[]
 
-  invoiceDetails InvoiceDetails[]
+  invoiceDetails   InvoiceDetails[]
+  ProductFavourite ProductFavourite[]
 }
 
 model Invoice {
@@ -77,15 +78,16 @@ model InvoiceDetails {
 }
 
 model AppUser {
-  id                   Int       @id @default(autoincrement())
-  createdAt            DateTime  @default(now())
-  userName             String    @unique()
+  id                   Int                @id @default(autoincrement())
+  createdAt            DateTime           @default(now())
+  userName             String             @unique()
   password             String
-  imagePath            String
-  cloudinary_public_id String
-  role                 Role      @default(Admin)
+  imagePath            String?
+  cloudinary_public_id String?
+  role                 Role               @default(Admin)
   invoices             Invoice[]
   reviews              Review[]
+  ProductFavourite     ProductFavourite[]
 }
 
 model Review {
@@ -115,6 +117,15 @@ model ProductDetails {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
   text      String
+}
+
+model ProductFavourite {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  appUser   AppUser  @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+  appUserId Int
 }
 
 model Inventory {

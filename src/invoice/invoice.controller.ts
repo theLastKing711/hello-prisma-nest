@@ -36,7 +36,7 @@ export class InvoiceController {
       },
       invoiceDetails: {
         createMany: {
-          data: createInvoiceDto.invoiceDetails,
+          data: [...createInvoiceDto.invoiceDetails],
         },
       },
     });

@@ -17,6 +17,7 @@ import { DiscountModule } from './discount/discount.module';
 import { SharedService } from './shared/shared.service';
 import { DateManipluationService } from './shared/services/date-manipluation/date-manipluation.service';
 import { CustomerModule } from './customer/customer.module';
+import { CurrentUserInterceptor } from './auth/interceptor/CurrentUserInterceptor';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CustomerModule } from './customer/customer.module';
     CategoryModule,
     SharedService,
     DateManipluationService,
+    CurrentUserInterceptor,
   ],
 })
 export class AppModule {}

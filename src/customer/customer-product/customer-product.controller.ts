@@ -41,7 +41,7 @@ export class CustomerProductController {
 
   @Get()
   async findAll(@Query() queryParams?: queryParamsCustomerProductsList) {
-    console.log('query params', queryParams);
+    // console.log('query params', queryParams);
 
     const sortFilter: Prisma.ProductOrderByWithRelationInput | undefined = {
       ...(queryParams.sort === 'price' && { price: 'desc' }),
@@ -113,22 +113,6 @@ export class CustomerProductController {
     };
   }
 
-  @Get('/:id')
-  async findById(@Param('id') id: string) {
-    const productModel = await this.customerProductService.findOne(+id);
-
-    console.log('product model', productModel);
-
-    if (!productModel) {
-      throw new HttpException('Product was not found', HttpStatus.NOT_FOUND);
-    }
-
-    const productDto =
-      transformCustomerProductDetailsToNonDecimalResponse(productModel);
-
-    return productDto;
-  }
-
   @Get('filters')
   async getProductRatingFilterList() {
     const categroeisFilterListDto =
@@ -141,6 +125,20 @@ export class CustomerProductController {
       categories: categroeisFilterListDto,
       ratings: ratingFilterListDto,
     };
+  }
+
+  @Get('/:id')
+  async findById(@Param('id') id: string) {
+    const productModel = await this.customerProductService.findOne(+id);
+
+    if (!productModel) {
+      throw new HttpException('Product was not found', HttpStatus.NOT_FOUND);
+    }
+
+    const productDto =
+      transformCustomerProductDetailsToNonDecimalResponse(productModel);
+
+    return productDto;
   }
 
   @Get('categories-filter')

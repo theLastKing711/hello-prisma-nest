@@ -5,6 +5,7 @@ import { AppUserService } from 'src/app-user/app-user.service';
 import { jwtConstants } from './constants';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service';
 
 @Module({
   imports: [
@@ -15,6 +16,6 @@ import { AuthService } from './auth.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, AppUserService],
+  providers: [AuthService, PrismaService, AppUserService, CloudinaryService],
 })
 export class AuthModule {}

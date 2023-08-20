@@ -4,6 +4,7 @@ export class LatestProductListDto {
   name: string;
   price: number;
   discount: ResponseDiscount | null;
+  isFavourite: boolean;
 }
 
 class ResponseDiscount {

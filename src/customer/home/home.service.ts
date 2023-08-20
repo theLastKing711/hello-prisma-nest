@@ -7,7 +7,7 @@ import { LatestProductListDto } from './dto/latest-products-list.dto';
 export class HomeService {
   constructor(private prisma: PrismaService) {}
 
-  async findFeaturedProducts(): Promise<FeaturedProductListDto[]> {
+  async findFeaturedProducts(id?: number): Promise<FeaturedProductListDto[]> {
     return this.prisma.product
       .findMany({
         select: {
@@ -15,6 +15,16 @@ export class HomeService {
           name: true,
           price: true,
           imagePath: true,
+          ProductFavourite: {
+            where: {
+              id: {
+                equals: id,
+              },
+            },
+            select: {
+              id: true,
+            },
+          },
         },
       })
       .then((res) => {
@@ -30,7 +40,7 @@ export class HomeService {
       });
   }
 
-  async findLatestProducts(): Promise<LatestProductListDto[]> {
+  async findLatestProducts(id?: number): Promise<LatestProductListDto[]> {
     return this.prisma.product
       .findMany({
         select: {
@@ -45,6 +55,16 @@ export class HomeService {
             select: {
               id: true,
               value: true,
+            },
+          },
+          ProductFavourite: {
+            where: {
+              id: {
+                equals: id,
+              },
+            },
+            select: {
+              id: true,
             },
           },
         },
@@ -60,13 +80,16 @@ export class HomeService {
             name: item.name,
             price: +item.price.toFixed(2),
             discount: item.discounts?.length > 0 ? item.discounts[0] : null,
+            isFavourite: item.ProductFavourite.length > 0 ? true : false,
           }),
         );
         return x;
       });
   }
 
-  async findLatestBestSellerProducts(): Promise<LatestProductListDto[]> {
+  async findLatestBestSellerProducts(
+    id?: number,
+  ): Promise<LatestProductListDto[]> {
     return this.prisma.product
       .findMany({
         select: {
@@ -83,6 +106,16 @@ export class HomeService {
               value: true,
             },
           },
+          ProductFavourite: {
+            where: {
+              id: {
+                equals: id,
+              },
+            },
+            select: {
+              id: true,
+            },
+          },
         },
         orderBy: {
           price: 'desc',
@@ -96,13 +129,16 @@ export class HomeService {
             name: item.name,
             price: +item.price.toFixed(2),
             discount: item.discounts?.length > 0 ? item.discounts[0] : null,
+            isFavourite: item.ProductFavourite.length > 0 ? true : false,
           }),
         );
         return x;
       });
   }
 
-  async findLatestFeaturedProducts(): Promise<LatestProductListDto[]> {
+  async findLatestFeaturedProducts(
+    id?: number,
+  ): Promise<LatestProductListDto[]> {
     return this.prisma.product
       .findMany({
         where: {
@@ -122,6 +158,16 @@ export class HomeService {
               value: true,
             },
           },
+          ProductFavourite: {
+            where: {
+              id: {
+                equals: id,
+              },
+            },
+            select: {
+              id: true,
+            },
+          },
         },
         orderBy: {
           price: 'desc',
@@ -135,6 +181,7 @@ export class HomeService {
             name: item.name,
             price: +item.price.toFixed(2),
             discount: item.discounts?.length > 0 ? item.discounts[0] : null,
+            isFavourite: item.ProductFavourite.length > 0 ? true : false,
           }),
         );
         return x;
