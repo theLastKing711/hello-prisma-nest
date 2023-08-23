@@ -54,6 +54,7 @@ export class ProductController {
     file: Express.Multer.File,
     @Body() createProductDto: CreateProductDto,
   ) {
+    console.log('hello world');
     const productModel = await this.productService.findOneByName(
       createProductDto.name,
     );

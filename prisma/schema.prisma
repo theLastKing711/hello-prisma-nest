@@ -55,7 +55,8 @@ model Product {
 
   inventories Inventory[]
 
-  invoiceDetails   InvoiceDetails[]
+  invoiceDetails InvoiceDetails[]
+
   ProductFavourite ProductFavourite[]
 }
 

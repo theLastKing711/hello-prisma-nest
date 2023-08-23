@@ -21,15 +21,18 @@ export class CurrentUserInterceptor implements NestInterceptor {
     // console.log('request', request.headers.authorization);
 
     const [type, jwtString] = request.headers.authorization?.split(' ') ?? [];
-    const { username } = this.jwtService.decode(jwtString) as { username: string };
-    // console.log('data', username);
+    const decodedUser = this.jwtService.decode(jwtString);
+    console.log('decoded user', decodedUser);
 
-    const loggedUser = await this.AppUserService.findOneByUserName(username);
+    request.currentUser = null;
 
-    // console.log('logged user', loggedUser);
+    if (decodedUser) {
+      const username = (decodedUser as { userName: string }).userName;
 
-    request.currentUser = loggedUser;
+      const loggedUser = await this.AppUserService.findOneByUserName(username);
 
+      request.currentUser = loggedUser;
+    }
 
     return handler.handle();
   }

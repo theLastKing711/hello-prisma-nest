@@ -1,6 +1,10 @@
 import { Prisma } from '@prisma/client';
 
-export class CustomerProduct {
+export class WishListModel {
+  product: CustomerProduct;
+}
+
+class CustomerProduct {
   id: number;
   name: string;
   imagePath: string;
@@ -8,7 +12,6 @@ export class CustomerProduct {
   isBestSeller: boolean;
   discounts: ResponseDiscount[];
   reviews: Review[];
-  ProductFavourite: { id: number}[];
 }
 
 class Review {

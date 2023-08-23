@@ -11,7 +11,7 @@ export class HomeController {
   @Get()
   @UseInterceptors(CurrentUserInterceptor)
   async findAll(@Req() request: Request & { currentUser: AppUser | null }) {
-    const userId = request.currentUser.id;
+    const userId = request.currentUser ? request.currentUser.id : undefined;
     const featuredProductListDto = await this.homeService.findFeaturedProducts(
       userId,
     );

@@ -12,6 +12,6 @@ import { CustomerProductFavouriteModule } from './customer-product-favourite/cus
     HomeModule,
     CustomerProductFavouriteModule,
   ],
-  exports: [CustomerProductModule],
+  exports: [CustomerProductModule, CustomerProductFavouriteModule],
 })
 export class CustomerModule {}

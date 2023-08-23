@@ -21,13 +21,16 @@ export class CustomerProductService {
     });
   }
 
-  async findAll(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.ProductWhereUniqueInput;
-    where?: Prisma.ProductWhereInput;
-    orderBy?: Prisma.ProductOrderByWithRelationInput;
-  }): Promise<CustomerProduct[]> {
+  async findAll(
+    params: {
+      skip?: number;
+      take?: number;
+      cursor?: Prisma.ProductWhereUniqueInput;
+      where?: Prisma.ProductWhereInput;
+      orderBy?: Prisma.ProductOrderByWithRelationInput;
+    },
+    appUserId?: number,
+  ): Promise<CustomerProduct[]> {
     const { skip, take, cursor, where, orderBy } = params;
 
     return this.prisma.product.findMany({
@@ -51,6 +54,14 @@ export class CustomerProductService {
         reviews: {
           select: {
             rating: true,
+          },
+        },
+        ProductFavourite: {
+          where: {
+            appUserId,
+          },
+          select: {
+            id: true,
           },
         },
       },
@@ -89,6 +100,11 @@ export class CustomerProductService {
             rating: true,
           },
         },
+        ProductFavourite: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
@@ -111,6 +127,11 @@ export class CustomerProductService {
         reviews: {
           select: {
             rating: true,
+          },
+        },
+        ProductFavourite: {
+          select: {
+            id: true,
           },
         },
       },

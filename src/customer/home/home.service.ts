@@ -17,9 +17,7 @@ export class HomeService {
           imagePath: true,
           ProductFavourite: {
             where: {
-              id: {
-                equals: id,
-              },
+              appUserId: id,
             },
             select: {
               id: true,
@@ -34,6 +32,7 @@ export class HomeService {
             imagePath: item.imagePath,
             name: item.name,
             price: +item.price.toFixed(2),
+            isFavourite: item.ProductFavourite.length > 0 ? true : false,
           }),
         );
         return x;
@@ -59,9 +58,7 @@ export class HomeService {
           },
           ProductFavourite: {
             where: {
-              id: {
-                equals: id,
-              },
+              appUserId: id,
             },
             select: {
               id: true,
@@ -73,6 +70,7 @@ export class HomeService {
         },
       })
       .then((res) => {
+        console.log('res', res);
         const x: LatestProductListDto[] = res.map<LatestProductListDto>(
           (item) => ({
             id: item.id,
@@ -108,9 +106,7 @@ export class HomeService {
           },
           ProductFavourite: {
             where: {
-              id: {
-                equals: id,
-              },
+              appUserId: id,
             },
             select: {
               id: true,
@@ -160,9 +156,7 @@ export class HomeService {
           },
           ProductFavourite: {
             where: {
-              id: {
-                equals: id,
-              },
+              appUserId: id,
             },
             select: {
               id: true,

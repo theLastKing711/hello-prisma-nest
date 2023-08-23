@@ -19,6 +19,7 @@ export const transformCustomerProductToNonDecimalResponse = (
         ? product.discounts[product.discounts.length - 1]
         : null,
     averageRating: calculateAverage(product.reviews.map((x) => x.rating)),
+    isFavourite: product.ProductFavourite.length > 0 ? true : false,
   };
 
   return responseProduct;

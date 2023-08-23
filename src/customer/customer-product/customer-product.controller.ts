@@ -6,6 +6,8 @@ import {
   HttpStatus,
   Param,
   Query,
+  Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CustomerProductService } from './customer-product.service';
 import {
@@ -13,8 +15,9 @@ import {
   transformCustomerProductToNonDecimalResponse,
 } from './customerProduct.utilites';
 import { queryParamsCustomerProductsList } from './dto/query-params-customer-products-list.dto';
-import { Prisma } from '@prisma/client';
+import { AppUser, Prisma } from '@prisma/client';
 import { DecimalJsLike } from '@prisma/client/runtime';
+import { CurrentUserInterceptor } from 'src/auth/interceptor/CurrentUserInterceptor';
 
 @Controller('customer-product')
 export class CustomerProductController {
@@ -40,9 +43,12 @@ export class CustomerProductController {
   }
 
   @Get()
-  async findAll(@Query() queryParams?: queryParamsCustomerProductsList) {
-    // console.log('query params', queryParams);
-
+  @UseInterceptors(CurrentUserInterceptor)
+  async findAll(
+    @Req() request: Request & { currentUser: AppUser | null },
+    @Query() queryParams?: queryParamsCustomerProductsList,
+  ) {
+    const userId = request.currentUser ? request.currentUser.id : undefined;
     const sortFilter: Prisma.ProductOrderByWithRelationInput | undefined = {
       ...(queryParams.sort === 'price' && { price: 'desc' }),
     };
@@ -78,15 +84,18 @@ export class CustomerProductController {
         startsWith: queryParams.search,
       };
 
-    const productModels = await this.customerProductService.findAll({
-      take: +queryParams.perPage || 6,
-      orderBy: sortFilter,
-      where: {
-        categoryId: categoryFilter,
-        price: priceFilter,
-        name: nameFilter,
+    const productModels = await this.customerProductService.findAll(
+      {
+        take: +queryParams.perPage || 6,
+        orderBy: sortFilter,
+        where: {
+          categoryId: categoryFilter,
+          price: priceFilter,
+          name: nameFilter,
+        },
       },
-    });
+      userId,
+    );
 
     let productDtos = [];
 

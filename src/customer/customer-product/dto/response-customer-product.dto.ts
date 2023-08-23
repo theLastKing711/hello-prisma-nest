@@ -6,6 +6,7 @@ export class ResponseCustomerProductDto {
   isBestSeller: boolean;
   discount: ResponseDiscount | null;
   averageRating: number;
+  isFavourite?: boolean;
 }
 
 export class ResponseCustomerProductDetailsDto {
