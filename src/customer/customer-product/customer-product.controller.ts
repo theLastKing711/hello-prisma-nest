@@ -52,6 +52,7 @@ export class CustomerProductController {
     const sortFilter: Prisma.ProductOrderByWithRelationInput | undefined = {
       ...(queryParams.sort === 'price' && { price: 'desc' }),
     };
+    
     const categoryFilter: number | Prisma.IntFilter | undefined =
       queryParams.categoryIds &&
       (typeof queryParams.categoryIds === 'string'
@@ -84,15 +85,30 @@ export class CustomerProductController {
         startsWith: queryParams.search,
       };
 
+    const paginationCursor: Prisma.ProductWhereUniqueInput | undefined =
+      queryParams && queryParams.id
+        ? {
+            id: +queryParams.id,
+          }
+        : undefined;
+
+    const perPage = +queryParams.perPage || 3;
+    const shouldSkipOne = queryParams && queryParams.id ? 1 : 0;
+
     const productModels = await this.customerProductService.findAll(
       {
-        take: +queryParams.perPage || 6,
+        take: perPage,
+        skip: shouldSkipOne,
         orderBy: sortFilter,
         where: {
           categoryId: categoryFilter,
           price: priceFilter,
           name: nameFilter,
         },
+        cursor: paginationCursor,
+        // cursor: {
+        //   id: 7,
+        // },
       },
       userId,
     );
@@ -102,6 +118,8 @@ export class CustomerProductController {
     productDtos = productModels.map(
       transformCustomerProductToNonDecimalResponse,
     );
+
+    console.log('productDto', productDtos);
 
     if (queryParams.sort) {
       productDtos.sort((x) => x.averageRating);
@@ -113,12 +131,39 @@ export class CustomerProductController {
       );
     }
 
-    const totalProductsCount =
-      await this.customerProductService.getTotalCount();
+    const totalProductsCount = await this.customerProductService.getTotalCount({
+      orderBy: sortFilter,
+      where: {
+        categoryId: categoryFilter,
+        price: priceFilter,
+        name: nameFilter,
+      },
+    });
+
+    const totalProductsCountPlusOne =
+      await this.customerProductService.getTotalCount({
+        take: perPage + 1,
+        orderBy: sortFilter,
+        where: {
+          categoryId: categoryFilter,
+          price: priceFilter,
+          name: nameFilter,
+        },
+        cursor: paginationCursor,
+        skip: shouldSkipOne,
+        // cursor: {
+        //   id: 7,
+        // },
+      });
+
+    const hasNextPage = totalProductsCountPlusOne > productDtos.length;
+
+    console.log('has next page', hasNextPage);
 
     return {
       data: productDtos,
       total: totalProductsCount,
+      hasNextPage,
     };
   }
 

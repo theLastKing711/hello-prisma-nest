@@ -237,7 +237,13 @@ export class CustomerProductService {
     return ratingFilterList;
   }
 
-  async getTotalCount(): Promise<number> {
-    return this.prisma.product.count();
+  async getTotalCount(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.ProductWhereUniqueInput;
+    where?: Prisma.ProductWhereInput;
+    orderBy?: Prisma.ProductOrderByWithRelationInput;
+  }): Promise<number> {
+    return (await this.prisma.product.findMany(params)).length;
   }
 }

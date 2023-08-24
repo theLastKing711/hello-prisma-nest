@@ -5,4 +5,5 @@ export class queryParamsCustomerProductsList {
   rating?: string;
   prices?: string;
   search?: string;
+  id?: string;
 }
