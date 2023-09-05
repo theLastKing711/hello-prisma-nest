@@ -52,7 +52,7 @@ export class CustomerProductController {
     const sortFilter: Prisma.ProductOrderByWithRelationInput | undefined = {
       ...(queryParams.sort === 'price' && { price: 'desc' }),
     };
-    
+
     const categoryFilter: number | Prisma.IntFilter | undefined =
       queryParams.categoryIds &&
       (typeof queryParams.categoryIds === 'string'
