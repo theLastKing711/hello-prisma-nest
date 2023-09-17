@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { HomeModule } from './home/home.module';
 import { CustomerProductModule } from './customer-product/customer-product.module';
 import { CustomerProductFavouriteModule } from './customer-product-favourite/customer-product-favourite.module';
+import { CustomerUserModule } from './customer-user/customer-user.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { CustomerProductFavouriteModule } from './customer-product-favourite/cus
     CustomerProductModule,
     HomeModule,
     CustomerProductFavouriteModule,
+    CustomerUserModule,
   ],
   exports: [CustomerProductModule, CustomerProductFavouriteModule],
 })
