@@ -16,6 +16,6 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service'
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, AppUserService, CloudinaryService],
+  providers: [AuthService, PrismaService, AppUserService],
 })
 export class AuthModule {}

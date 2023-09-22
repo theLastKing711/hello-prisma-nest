@@ -53,6 +53,8 @@ export class AppUserService {
   }
 
   async findOneByUserName(userName: string): Promise<AppUser | null> {
+    console.log('app user', userName);
+
     const userModel = await this.prisma.appUser.findFirst({
       where: {
         userName,
@@ -82,6 +84,20 @@ export class AppUserService {
         }),
       },
       where,
+    });
+  }
+
+  async updateRefreshToken(
+    id: number,
+    refreshToken: string | null,
+  ): Promise<AppUser> {
+    return this.prisma.appUser.update({
+      data: {
+        refreshToken,
+      },
+      where: {
+        id,
+      },
     });
   }
 

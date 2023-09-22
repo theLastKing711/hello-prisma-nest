@@ -33,6 +33,20 @@ export class CustomerUserController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  @Get('get-by-username/:username')
+  async findOneByUsername(@Param('username') username: string) {
+    console.log('username', username);
+    const userModel = await this.appUserService.findOneByUserName(username);
+
+    if (!userModel) {
+      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
+    }
+
+    const responseUserDto = transformAppUserToResponse(userModel);
+
+    return responseUserDto;
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const userModel = await this.appUserService.findOne({ id: +id });

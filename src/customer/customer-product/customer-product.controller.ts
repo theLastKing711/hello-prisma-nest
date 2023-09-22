@@ -7,6 +7,7 @@ import {
   Param,
   Query,
   Req,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { CustomerProductService } from './customer-product.service';
@@ -18,6 +19,7 @@ import { queryParamsCustomerProductsList } from './dto/query-params-customer-pro
 import { AppUser, Prisma } from '@prisma/client';
 import { DecimalJsLike } from '@prisma/client/runtime';
 import { CurrentUserInterceptor } from 'src/auth/interceptor/CurrentUserInterceptor';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('customer-product')
 export class CustomerProductController {
@@ -43,11 +45,13 @@ export class CustomerProductController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   @UseInterceptors(CurrentUserInterceptor)
   async findAll(
     @Req() request: Request & { currentUser: AppUser | null },
     @Query() queryParams?: queryParamsCustomerProductsList,
   ) {
+    console.log('request', request.currentUser);
     const userId = request.currentUser ? request.currentUser.id : undefined;
     const sortFilter: Prisma.ProductOrderByWithRelationInput | undefined = {
       ...(queryParams.sort === 'price' && { price: 'desc' }),
@@ -119,8 +123,6 @@ export class CustomerProductController {
       transformCustomerProductToNonDecimalResponse,
     );
 
-    console.log('productDto', productDtos);
-
     if (queryParams.sort) {
       productDtos.sort((x) => x.averageRating);
     }
@@ -157,8 +159,6 @@ export class CustomerProductController {
       });
 
     const hasNextPage = totalProductsCountPlusOne > productDtos.length;
-
-    console.log('has next page', hasNextPage);
 
     return {
       data: productDtos,

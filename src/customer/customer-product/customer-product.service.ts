@@ -33,6 +33,8 @@ export class CustomerProductService {
   ): Promise<CustomerProduct[]> {
     const { skip, take, cursor, where, orderBy } = params;
 
+    const userIdOrRemove = appUserId ?? -999999;
+
     return this.prisma.product.findMany({
       skip,
       take,
@@ -58,7 +60,7 @@ export class CustomerProductService {
         },
         ProductFavourite: {
           where: {
-            appUserId,
+            appUserId: userIdOrRemove,
           },
           select: {
             id: true,

@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { AppUserService } from 'src/app-user/app-user.service';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { jwtConstants } from 'src/auth/constants';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,19 @@ export class AuthService {
     private jwtService: JwtService,
     private prisma: PrismaService,
   ) {}
-  saltOrRounds = 10;
+  private saltOrRounds = 10;
+
+  async getAccessToken(userId: number) {
+    const signedUser = await this.appUserService.findOne({
+      id: userId,
+    });
+
+    if (!signedUser) {
+      throw new UnauthorizedException();
+    }
+
+    return this.generateAccessToken(signedUser.id, signedUser.userName);
+  }
 
   async signIn(appUserDto: SignInAppUserDto) {
     const appUserModel = await this.appUserService.findOneByUserName(
@@ -28,9 +41,40 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { sub: appUserModel.id, username: appUserModel.userName };
+    const { accessToken, refreshToken } = this.generateAccessToken(
+      appUserModel.id,
+      appUserModel.userName,
+    );
 
-    return { accessToken: this.jwtService.sign(payload) };
+    const updatedUser = await this.appUserService.updateRefreshToken(
+      appUserModel.id,
+      refreshToken,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async logout(userId: number) {
+    return this.appUserService.updateRefreshToken(userId, null);
+  }
+
+  private generateAccessToken(userId: number, username: string) {
+    const payload = { sub: userId, username: username };
+    console.log('new user', username);
+
+    return {
+      accessToken: this.jwtService.sign(payload, {
+        expiresIn: '1min',
+        secret: jwtConstants.secret,
+      }),
+      refreshToken: this.jwtService.sign(payload, {
+        expiresIn: '30s',
+        secret: jwtConstants.secret,
+      }),
+    };
   }
 
   async create(data: Omit<Prisma.AppUserCreateInput, 'role'>) {

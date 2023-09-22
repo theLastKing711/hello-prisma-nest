@@ -27,9 +27,13 @@ export class CurrentUserInterceptor implements NestInterceptor {
     request.currentUser = null;
 
     if (decodedUser) {
-      const username = (decodedUser as { userName: string }).userName;
+      const username = (decodedUser as { username: string }).username;
+
+      console.log('username', username);
 
       const loggedUser = await this.AppUserService.findOneByUserName(username);
+
+      console.log('logged user', loggedUser);
 
       request.currentUser = loggedUser;
     }

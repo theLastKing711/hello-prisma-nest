@@ -1,36 +1,57 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
-  MaxFileSizeValidator,
-  ParseFilePipe,
   Post,
-  UploadedFile,
+  Req,
+  UnauthorizedException,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInAppUserDto } from 'src/auth/dto/sign-in-user.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { transformAppUserToResponse } from 'src/app-user/app-user.utilities';
 import { AppUserService } from 'src/app-user/app-user.service';
-import { CloudinaryService } from 'src/cloudinary/cloudinary/cloudinary.service';
 import { SignUpAppUserDto } from './dto/sign-up-user.dto';
+import { CurrentUserInterceptor } from './interceptor/CurrentUserInterceptor';
+import { AppUser } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private appUserService: AppUserService,
-    private cloudinaryService: CloudinaryService,
   ) {}
+
+  @HttpCode(HttpStatus.OK)
+  @Get('getAccessToken')
+  @UseInterceptors(CurrentUserInterceptor)
+  generateAccessToken(
+    @Req() request: Request & { currentUser: AppUser | null },
+  ) {
+    if (!request.currentUser || !request.currentUser.id) {
+      throw new UnauthorizedException();
+    }
+
+    return this.authService.getAccessToken(request.currentUser.id);
+  }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: SignInAppUserDto) {
     return this.authService.signIn(signInDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('logout')
+  @UseInterceptors(CurrentUserInterceptor)
+  logout(@Req() request: Request & { currentUser: AppUser | null }) {
+    if (!request.currentUser || !request.currentUser.id) {
+      throw new UnauthorizedException();
+    }
+    return this.authService.logout(request.currentUser.id);
   }
 
   @Post('sign-up')

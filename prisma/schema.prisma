@@ -80,6 +80,7 @@ model InvoiceDetails {
 
 model AppUser {
   id                   Int                @id @default(autoincrement())
+  refreshToken         String?
   createdAt            DateTime           @default(now())
   userName             String             @unique()
   password             String
